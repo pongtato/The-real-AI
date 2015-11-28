@@ -404,6 +404,10 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Warrior	//
 	//**********//
+	//Vector3 dirVec = (Tank->TargetPosition - Tank->Position);
+	//dirVec = dirVec.Normalized();
+	//float theta = Math::RadianToDegree(atan2(dirVec.x, dirVec.z)) + (float)Tank->TANK_LOOK_OFFSET;
+	//sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setRotation(theta, 0, 1, 0);
 	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->GetPosition());
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 

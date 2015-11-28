@@ -10,5 +10,7 @@ public:
 	void RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition);
 
 	void UpdateAttacking(void);
+	
+	const static int TANK_LOOK_OFFSET = 90;
 };
 
