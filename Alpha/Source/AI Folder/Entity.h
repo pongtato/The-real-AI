@@ -9,6 +9,8 @@
 
 using namespace std;
 
+#define MAYA_MODEL_OFFSET 90
+
 class CEntity
 {
 protected:
@@ -16,6 +18,7 @@ protected:
 	int m_HP;
 	int m_Curent_HP;
 	int m_Priority;
+	float m_Rotation;
 	float m_MoveSpeed;
 	float m_RunSpeed;
 	float m_Damage;
@@ -27,7 +30,7 @@ protected:
 
 	Vector3 Position;
 	Vector3 TargetPosition;
-	Vector3 DangerPosition;
+	Vector3 DangerPosition;	
 
 	string ClassName;
 
@@ -39,9 +42,11 @@ public:
 	void SetDangerPosition(Vector3 DangerPosition);
 	void SetIsTarget(bool TF);
 	void SetDangerZone(float DZ);
+	void FaceTarget(void);
 
 	float GetHpPercent(void);
 	float GetAttackRange(void);
+	float GetRotation(void);
 	Vector3 GetPosition();
 
 	enum STATES

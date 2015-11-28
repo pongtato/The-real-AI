@@ -24,6 +24,8 @@ void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 {
 	TargetPosition = newTargetPosition;
 	DangerPosition = newDangerPosition;
+	//Face the targets position
+	FaceTarget();
 
 	if (m_DangerZone > (Position - DangerPosition).Length())
 	{
@@ -46,6 +48,7 @@ void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
+			UpdateAttacking();
 		}
 		else
 		{
@@ -65,14 +68,8 @@ void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 	default:
 		break;
 	}
-	UpdateAttacking();
 }
 void CMage::UpdateAttacking(void)
 {
-	if (state == ATTACK)
-	{
-	}
-	else
-	{
-	}
+
 }

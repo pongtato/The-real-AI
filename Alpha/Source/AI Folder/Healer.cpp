@@ -50,6 +50,8 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newDa
 	float lowestHP = 0;
 
 	DangerPosition = newDangerPosition;
+	//Face the targets position
+	FaceTarget();
 
 	//Go through list for lowest hp
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
@@ -82,6 +84,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newDa
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
+			UpdateAttacking();
 		}
 		else
 		{
@@ -101,15 +104,8 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newDa
 	default:
 		break;
 	}
-	UpdateAttacking();
 }
 void CHealer::UpdateAttacking(void)
 {
-	if (state == HEAL)
-	{
-	}
 
-	else
-	{
-	}
 }

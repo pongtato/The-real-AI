@@ -6,6 +6,7 @@ CEntity::CEntity()
 	srand((unsigned)time(NULL));
 	state = MOVE;
 	IsTarget = false;
+	m_Rotation = 0.0f;
 }
 
 
@@ -55,13 +56,25 @@ float CEntity::GetHpPercent(void)
 	return m_HP_Percent;
 }
 
+float CEntity::GetRotation(void)
+{
+	return this->m_Rotation;
+}
+
+void CEntity::FaceTarget(void)
+{
+	Vector3 Direction;
+	Direction = (TargetPosition - Position).Normalized();
+	this->m_Rotation = Math::RadianToDegree(atan2(Direction.x, Direction.z)) + MAYA_MODEL_OFFSET;
+}
+
 void CEntity::Move(Vector3 TargetDestination, double dt)
 {
 	Vector3 Direction;
-	
+
 	// Get the direction
-	Direction = TargetDestination - Position;
-	Position += Direction.Normalized() * m_MoveSpeed * dt;
+	Direction = (TargetDestination - Position).Normalized();
+	Position += Direction * m_MoveSpeed * dt;
 }
 
 void CEntity::Retreat(Vector3 TargetDestination, double dt)
@@ -69,8 +82,8 @@ void CEntity::Retreat(Vector3 TargetDestination, double dt)
 	Vector3 Direction;
 
 	// Get the direction
-	Direction = Position - TargetDestination;
-	Position += Direction.Normalized() * m_RunSpeed * dt;
+	Direction = (Position - TargetDestination).Normalized();
+	Position += Direction * m_RunSpeed * dt;
 }
 
 void CEntity::Attack(void)

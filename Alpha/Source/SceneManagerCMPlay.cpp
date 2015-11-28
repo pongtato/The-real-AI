@@ -410,12 +410,8 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Warrior	//
 	//**********//
-	//Vector3 dirVec = (Tank->TargetPosition - Tank->Position);
-	//dirVec = dirVec.Normalized();
-	//float theta = Math::RadianToDegree(atan2(dirVec.x, dirVec.z)) + (float)Tank->TANK_LOOK_OFFSET;
-	//sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setRotation(theta, 0, 1, 0);
 	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->GetPosition());
-	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
+	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setRotation(Tank->GetRotation(), 0, 1, 0);
 
 	sceneGraph->GetChildNode("WARRIOR_SWORD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
@@ -426,7 +422,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//Healer	//
 	//**********//
 	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(Healer->GetPosition());
-	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
+	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setRotation(Healer->GetRotation(), 0, 1, 0);
 
 	sceneGraph->GetChildNode("HEALER_ROD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
@@ -435,7 +431,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//Mage	//
 	//**********//	
 	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(Mage->GetPosition());
-	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
+	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setRotation(Mage->GetRotation(), 0, 1, 0);
 
 	sceneGraph->GetChildNode("MAGE_STAFF")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
@@ -444,7 +440,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//Boss		//
 	//**********//
 	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(Boss->GetPosition());
-	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
+	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setRotation(Boss->GetRotation(), 0, 1, 0);
 
 	sceneGraph->GetChildNode("BOSS_L_ARM")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 

@@ -2,7 +2,7 @@
 
 
 CBoss::CBoss()
-:TargetChangeDelay(10.f)
+:TargetChangeDelay(30.f)
 {
 	InitialPos.Set(80.f, 0.1f, 0.f);
 	ClassName = "Boss: ";
@@ -38,6 +38,8 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies)
 {
 	//Boss event timer
 	TickTimer(dt);
+	//Face the targets position
+	FaceTarget();
 
 	if (TargetChangeTimer > TargetChangeDelay)
 	{
@@ -69,6 +71,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies)
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
+			UpdateAttacking();
 		}
 		else
 		{
@@ -98,7 +101,6 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies)
 	default:
 		break;
 	}
-	UpdateAttacking();
 }
 
 string CBoss::GetState(void)
@@ -128,14 +130,8 @@ string CBoss::GetState(void)
 		break;
 	}
 }
+
 void CBoss::UpdateAttacking(void)
 {
-	if (state == ATTACK)
 
-	{
-	}
-
-	else
-	{
-	}
 }
