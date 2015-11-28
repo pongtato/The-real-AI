@@ -3,6 +3,10 @@
 
 #include "SceneManagerGameplay.h"
 #include "SceneNode.h"
+#include "AI Folder\Tank.h"
+#include "AI Folder\Healer.h"
+#include "AI Folder\Mage.h"
+#include "AI Folder\Boss.h"
 
 class SceneManagerCMPlay : public SceneManagerGameplay
 {
@@ -29,6 +33,11 @@ public:
 	void RenderBG();
 	void RenderStaticObject();
 	void RenderMobileObject();
+
+	CTank*		Tank;
+	CHealer*	Healer;
+	CMage*		Mage;
+	CBoss*		Boss;
 };
 
 #endif

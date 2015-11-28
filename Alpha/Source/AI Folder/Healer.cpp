@@ -5,7 +5,7 @@ CHealer::CHealer()
 {
 	IsTarget = false;
 	ClassName = "Healer: ";
-	Position.Set(3, -3);
+	Position.Set(40.f,0.f,20.f);
 	m_MoveSpeed = 0.03f;
 	m_AttackRange = 3.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;

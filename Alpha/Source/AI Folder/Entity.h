@@ -4,6 +4,8 @@
 #include <iostream>
 #include "MyMath.h"
 #include "Vector3.h"
+#include <time.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -50,6 +52,8 @@ public:
 	virtual void UpdateAttacking(void);
 
 	virtual void RunFSM(double dt);
+
+	virtual int Probability(int lowerLimit, int upperLimit);
 
 	virtual string GetState(void);
 	string ClassName;

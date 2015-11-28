@@ -1,8 +1,13 @@
 #include "SceneManagerCMPlay.h"
 
-SceneManagerCMPlay::SceneManagerCMPlay() : 
-sceneGraph(NULL)
+SceneManagerCMPlay::SceneManagerCMPlay() 
+: sceneGraph(NULL)
+, Tank(NULL)
+, Healer(NULL)
+, Mage(NULL)
+, Boss(NULL)
 {
+
 }
 
 SceneManagerCMPlay::~SceneManagerCMPlay()
@@ -12,11 +17,39 @@ SceneManagerCMPlay::~SceneManagerCMPlay()
 		delete sceneGraph;
 		sceneGraph = NULL;
 	}
+
+	if (Tank)
+	{
+		delete Tank;
+		Tank = NULL;
+	}
+
+	if (Healer)
+	{
+		delete Healer;
+		Healer = NULL;
+	}
+
+	if (Mage)
+	{
+		delete Mage;
+		Mage = NULL;
+	}
+
+	if (Boss)
+	{
+		delete Boss;
+		Boss = NULL;
+	}
 }
 
 void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *RM, InputManager* controls)
 {
 	SceneManagerGameplay::Init(width, height, RM, controls);
+	this->Tank = new CTank;
+	this->Mage = new CMage;
+	this->Healer = new CHealer;
+	this->Boss = new CBoss;
 
 	this->InitShader();
 
@@ -29,7 +62,6 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	projectionStack.LoadMatrix(perspective);
 
 	InitSceneGraph();
-
 	lightEnabled = true;
 }
 
@@ -41,7 +73,6 @@ void SceneManagerCMPlay::Config()
 void SceneManagerCMPlay::Update(double dt)
 {
 	SceneManagerGameplay::Update(dt);
-	FSMApplication();
 	//Uncomment the following line to play sound
 	//resourceManager.retrieveSound("MenuFeedback");
 
@@ -57,6 +88,85 @@ void SceneManagerCMPlay::Update(double dt)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
+	Boss->TickTimer();
+	//Boss change target
+	if (Boss->TargetChangeTimer > Boss->TargetChangeDelay)
+	{
+		if ((Healer->Position - Boss->Position).Length() <= Boss->TargetAcquireRange)
+		{
+			Boss->TargetList.push_back(Healer);
+		}
+
+		if ((Mage->Position - Boss->Position).Length() <= Boss->TargetAcquireRange)
+		{
+			Boss->TargetList.push_back(Mage);
+		}
+
+		if ((Tank->Position - Boss->Position).Length() <= Boss->TargetAcquireRange)
+		{
+			Boss->TargetList.push_back(Tank);
+		}
+
+		switch (Boss->ChooseTarget(Boss->Probability(0, 100)))
+		{
+		case CBoss::TANK:
+			Tank->IsTarget = true;
+			Healer->IsTarget = false;
+			Mage->IsTarget = false;
+			Tank->m_DangerZone = Boss->m_AttackRange * 5.f;
+			break;
+		case CBoss::HEALER:
+			Tank->IsTarget = false;
+			Healer->IsTarget = true;
+			Mage->IsTarget = false;
+			Healer->m_DangerZone = Boss->m_AttackRange * 5.f;
+			break;
+		case CBoss::MAGE:
+			Tank->IsTarget = false;
+			Healer->IsTarget = false;
+			Mage->IsTarget = true;
+			Mage->m_DangerZone = Boss->m_AttackRange * 5.f;
+			break;
+		}
+		Boss->TargetChangeTimer = 0.0f;
+	}
+
+	//Reset all targets if boss is retreating
+	if (Boss->state == CBoss::STATES::RESET)
+	{
+		Tank->IsTarget = false;
+		Healer->IsTarget = false;
+		Mage->IsTarget = false;
+	}
+
+	//Constaly update target
+	switch (Boss->target)
+	{
+	case CBoss::TANK:
+		Boss->TargetPosition = Tank->Position;
+		break;
+	case CBoss::MAGE:
+		Boss->TargetPosition = Mage->Position;
+		break;
+	case CBoss::HEALER:
+		Boss->TargetPosition = Healer->Position;
+		break;
+	}
+
+	Boss->RunFSM(dt);
+
+	Tank->TargetPosition = Boss->Position;
+	Tank->DangerPosition = Boss->Position;
+	Tank->RunFSM(dt);
+
+	Mage->TargetPosition = Boss->Position;
+	Mage->DangerPosition = Boss->Position;
+	Mage->RunFSM(dt);
+
+	Healer->TargetPosition = Tank->Position;
+	Healer->DangerPosition = Boss->Position;
+	Healer->RunFSM(dt);
 }
 
 void SceneManagerCMPlay::Render()
@@ -89,6 +199,30 @@ void SceneManagerCMPlay::Exit()
 	{
 		delete sceneGraph;
 		sceneGraph = NULL;
+	}
+
+	if (Tank)
+	{
+		delete Tank;
+		Tank = NULL;
+	}
+
+	if (Healer)
+	{
+		delete Healer;
+		Healer = NULL;
+	}
+
+	if (Mage)
+	{
+		delete Mage;
+		Mage = NULL;
+	}
+
+	if (Boss)
+	{
+		delete Boss;
+		Boss = NULL;
 	}
 
 	SceneManagerGameplay::Exit();
@@ -203,7 +337,7 @@ void SceneManagerCMPlay::RenderStaticObject()
 
 void SceneManagerCMPlay::RenderMobileObject()
 {
-	
+	FSMApplication();
 	sceneGraph->Draw(this);
 }
 
@@ -216,13 +350,11 @@ void SceneManagerCMPlay::InitSceneGraph()
 	//**********//
 	GameObject3D* newModel = new GameObject3D;
 	SceneNode* newNode = new SceneNode;
-	CEntity* type = new CTank;
 	Mesh* drawMesh = resourceManager.retrieveMesh("WARRIOR_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("WARRIOR");
 	newModel->setMesh(drawMesh);
 	newModel->setName("WARRIOR");
 	newNode->SetGameObject(newModel);
-	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("WARRIOR_SWORD_OBJ");
@@ -251,11 +383,9 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("HEALER");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	type = new CHealer;
 	newModel->setMesh(drawMesh);
 	newModel->setName("HEALER");
 	newNode->SetGameObject(newModel);
-	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("HEALER_ROD_OBJ");
@@ -275,11 +405,9 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("MAGE");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	type = new CMage;
 	newModel->setMesh(drawMesh);
 	newModel->setName("MAGE");
 	newNode->SetGameObject(newModel);
-	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("MAGE_STAFF_OBJ");
@@ -298,11 +426,9 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("BOSS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	type = new CBoss;
 	newModel->setMesh(drawMesh);
 	newModel->setName("BOSS");
 	newNode->SetGameObject(newModel);
-	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("BOSS_ARM_OBJ");
@@ -327,39 +453,42 @@ void SceneManagerCMPlay::InitSceneGraph()
 
 void SceneManagerCMPlay::FSMApplication()
 {
-	Vector3 newPosition;
-	newPosition.Set(-40, 0, 0);
-	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(newPosition);
+	//**********//
+	//Warrior	//
+	//**********//
+	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("WARRIOR_SWORD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
 	sceneGraph->GetChildNode("WARRIOR_SHIELD")->GetGameObject()->setPosition(Vector3(0, 0, 5));
 
-	newPosition.Set(-40, 0, -20);
-	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(newPosition);
+
+	//**********//
+	//Healer	//
+	//**********//
+	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(Healer->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("HEALER_ROD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
 
-	newPosition.Set(-40, 0, 20);
-	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(newPosition);
+	//**********//
+	//Mage	//
+	//**********//	
+	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(Mage->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("MAGE_STAFF")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
-	newPosition.Set(-60, 0, 0);
-	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(newPosition);
+
+	//**********//
+	//Boss		//
+	//**********//
+	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(Boss->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("BOSS_L_ARM")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
 	sceneGraph->GetChildNode("BOSS_R_ARM")->GetGameObject()->setPosition(Vector3(0, 0, 5));
-
-
-	sceneGraph->GetChildNode("WARRIOR")->GetEntityType()->RunFSM(0.33f);
-	sceneGraph->GetChildNode("HEALER")->GetEntityType()->RunFSM(0.33f);
-	sceneGraph->GetChildNode("MAGE")->GetEntityType()->RunFSM(0.33f);
-	sceneGraph->GetChildNode("BOSS")->GetEntityType()->RunFSM(0.33f);
 }

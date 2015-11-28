@@ -1,18 +1,13 @@
 #include "SceneNode.h"
 
 
-SceneNode::SceneNode() : gameObject3D(NULL), parentNode(NULL), entityType(NULL)
+SceneNode::SceneNode() : gameObject3D(NULL), parentNode(NULL)
 {
 }
 
 
 SceneNode::~SceneNode()
 {
-	if (entityType)
-	{
-		delete entityType;
-		entityType = NULL;
-	}
 }
 
 void SceneNode::SetGameObject(GameObject3D *gameObject)
@@ -97,13 +92,4 @@ SceneNode* SceneNode::GetChildNode(string childName)
 GameObject3D* SceneNode::GetGameObject()
 {
 	return this->gameObject3D;
-}
-
-void SceneNode::SetEntityType(CEntity* type)
-{
-	this->entityType = type;
-}
-CEntity* SceneNode::GetEntityType(void)
-{
-	return entityType;
 }

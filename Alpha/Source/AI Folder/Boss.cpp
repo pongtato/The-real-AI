@@ -5,7 +5,7 @@ CBoss::CBoss()
 :TargetChangeProbability (33.3f)
 ,TargetChangeDelay(300.f)
 {
-	InitialPos.Set(0.f, 0.f, 0.f);
+	InitialPos.Set(60.f, 0.f, 0.f);
 	ClassName = "Boss: ";
 	Position = InitialPos;
 	TargetAcquireRange = 10.f;

@@ -22,7 +22,7 @@ public:
 	float TargetAcquireRange;
 	bool IsTaunted;
 	const int TargetChangeProbability;
-	vector<CEntity> TargetList;
+	vector<CEntity*> TargetList;
 
 	int ChooseTarget(int RNG);
 	void TickTimer(void);

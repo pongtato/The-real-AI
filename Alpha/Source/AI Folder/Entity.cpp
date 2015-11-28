@@ -3,6 +3,7 @@
 
 CEntity::CEntity()
 {
+	srand((unsigned)time(NULL));
 	state = MOVE;
 	IsTarget = false;
 }
@@ -10,6 +11,11 @@ CEntity::CEntity()
 
 CEntity::~CEntity()
 {
+}
+
+int CEntity::Probability(int lowerLimit, int upperLimit)
+{
+	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
 }
 
 void CEntity::Move(Vector3 TargetDestination)

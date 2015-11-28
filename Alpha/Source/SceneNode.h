@@ -3,7 +3,6 @@
 
 #include "GameObject3D.h"
 #include "SceneManager.h"
-#include "AI Folder\HeaderAI.h"
 
 class SceneNode
 {
@@ -24,15 +23,10 @@ public:
 	
 	GameObject3D* GetGameObject();
 
-
-	void SetEntityType(CEntity* type);
-	CEntity* GetEntityType(void);
-
 protected:
 	GameObject3D* gameObject3D;
 	SceneNode *parentNode;
 	vector<SceneNode*> childNodes;
-	CEntity* entityType;
 };
 
 #endif
