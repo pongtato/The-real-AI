@@ -1,0 +1,12 @@
+# Mouse setup #
+# Init default mouse properties outside of source codes #
+{
+	[NAME] MouseConfig
+	{
+		[NAME] SetUp
+		[currentPos] 0, 0
+		[sensitivity] 1
+		[window_w] 1920
+		[window_h] 1080
+	}
+}
