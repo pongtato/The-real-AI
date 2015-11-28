@@ -2,6 +2,8 @@
 #include "Entity.h"
 #include  <vector>
 
+#define BOSS "BOSS"
+
 class CBoss : public CEntity
 {
 
@@ -29,7 +31,7 @@ public:
 	string GetState(void);
 	void UpdateAttacking(void);
 	void TickTimer(double dt);
-	void RunFSM(double dt, vector<CEntity*> ListOfEnemies);	
+	void RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	int GetCurrentTarget(void);
 };
 

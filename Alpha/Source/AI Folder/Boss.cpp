@@ -4,9 +4,7 @@
 CBoss::CBoss()
 :TargetChangeDelay(30.f)
 {
-	InitialPos.Set(80.f, 0.1f, 0.f);
 	ClassName = "Boss: ";
-	Position = InitialPos;
 	TargetAcquireRange = 10.f;
 	IsTaunted = false;
 	TargetChangeTimer = TargetChangeDelay;
@@ -16,6 +14,13 @@ CBoss::CBoss()
 	ID = BOSS;
 	ResetRange = 100.f;
 	CurrentTarget = 0;
+
+	InitialPos.Set(
+		Probability(0, 100),
+		0.1f, 
+		Probability(0, 100));
+
+	Position = InitialPos;
 }
 
 
@@ -34,7 +39,7 @@ int CBoss::GetCurrentTarget(void)
 }
 
 
-void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies)
+void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
 	//Boss event timer
 	TickTimer(dt);
@@ -46,7 +51,15 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies)
 		CurrentTarget =	Probability(0, ListOfEnemies.size()-1);
 		TargetChangeTimer = 0.0f;
 	}
-	TargetPosition = ListOfEnemies[CurrentTarget]->GetPosition();
+
+	if (ListOfEnemies[CurrentTarget]->GetTYPE() == BOSS)
+	{
+		CurrentTarget = Probability(0, ListOfEnemies.size() - 1);
+	}
+	else
+	{
+		TargetPosition = ListOfEnemies[CurrentTarget]->GetPosition();
+	}
 
 	//Prevent game from leaving world space
 	if ((InitialPos - Position).Length() > ResetRange)

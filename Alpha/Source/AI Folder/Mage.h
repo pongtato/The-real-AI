@@ -5,7 +5,7 @@ class CMage : public CEntity
 public:
 	CMage();
 	~CMage();
-	void RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition);
+	void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 
 	void UpdateAttacking(void);
 

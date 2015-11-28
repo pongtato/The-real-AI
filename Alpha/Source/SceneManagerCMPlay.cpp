@@ -41,6 +41,8 @@ SceneManagerCMPlay::~SceneManagerCMPlay()
 		delete Boss;
 		Boss = NULL;
 	}
+
+
 }
 
 void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *RM, InputManager* controls)
@@ -65,9 +67,35 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	Mage->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 	Healer->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 
+	int TANK_COUNT = 1;
+	int MAGE_COUNT = 1;
+	int	HEALER_COUNT = 1;
+	int BOSS_COUNT = 1;
+
+	string newName = "WARRIOR_";
+	newName += to_string(TANK_COUNT);
+	Tank->SetID(newName, WARRIOR);
+	Tank->RandomSpawn(0, 100);
+
+	newName = "MAGE_";
+	newName += to_string(MAGE_COUNT);
+	Mage->SetID(newName,MAGE);
+	Mage->RandomSpawn(0, 100);
+
+	newName = "HEALER_";
+	newName += to_string(HEALER_COUNT);
+	Healer->SetID(newName,HEALER);
+	Healer->RandomSpawn(0, 100);
+
+	newName = "BOSS_";
+	newName += to_string(BOSS_COUNT);
+	Boss->SetID(newName,BOSS);
+	Boss->RandomSpawn(0, 100);
+
 	ListOfCharacters.push_back(Tank);
 	ListOfCharacters.push_back(Mage);
 	ListOfCharacters.push_back(Healer);
+	ListOfCharacters.push_back(Boss);
 
 	InitSceneGraph();
 	lightEnabled = true;
@@ -112,15 +140,27 @@ void SceneManagerCMPlay::Update(double dt)
 		}
 	}
 
-	Boss->RunFSM(dt, ListOfCharacters);
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		{
+			ListOfCharacters[i]->RunFSM(dt, Boss->GetPosition(), Boss->GetPosition());
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
+		{
+			ListOfCharacters[i]->RunFSM(dt, Boss->GetPosition(), Boss->GetPosition());
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
+		{
+			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == BOSS)
+		{
+			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
+		}
+	}
 
-	Tank->RunFSM(dt,Boss->GetPosition(),Boss->GetPosition());
 
-	cout << Tank->GetState() << endl;
-
-	Mage->RunFSM(dt,Boss->GetPosition(), Boss->GetPosition());
-
-	Healer->RunFSM(dt, ListOfCharacters, Boss->GetPosition());
 }
 
 void SceneManagerCMPlay::Render()
@@ -299,6 +339,133 @@ void SceneManagerCMPlay::InitSceneGraph()
 {
 	this->sceneGraph = new SceneNode();
 
+	//TEST CODE FOR TWO TANKS
+
+	/*this->Tank = new CTank;
+	TANK_COUNT = 2;
+	string newName = "WARRIOR_";
+	newName += to_string(TANK_COUNT);
+	Tank->SetID(newName, WARRIOR);
+	Tank->RandomSpawn(0, 100);
+	ListOfCharacters.push_back(Tank);*/
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		{
+			AddTANK(ListOfCharacters[i]->GetID());
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
+		{
+			AddMAGE(ListOfCharacters[i]->GetID());
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
+		{
+			AddHEALER(ListOfCharacters[i]->GetID());
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == BOSS)
+		{
+			AddBOSS(ListOfCharacters[i]->GetID());
+		}
+	}
+
+}
+
+void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
+{
+	//**********//
+	//Warrior	//
+	//**********//
+	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setPosition(theTank->GetPosition());
+	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setRotation(theTank->GetRotation(), 0, 1, 0);
+
+	string IDPlus = theTank->GetID();
+	IDPlus += SWORD;
+	IDPlus += theTank->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+
+	IDPlus = theTank->GetID();
+	IDPlus += SHIELD;
+	IDPlus += theTank->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
+}
+
+void SceneManagerCMPlay::MAGE_NODE(CEntity* theMage)
+{
+	//**********//
+	//Mage	//
+	//**********//	
+	sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->setPosition(theMage->GetPosition());
+	sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->setRotation(theMage->GetRotation(), 0, 1, 0);
+
+	string IDPlus = theMage->GetID();
+	IDPlus += STAFF;
+	IDPlus += theMage->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+}
+void SceneManagerCMPlay::HEALER_NODE(CEntity* theHealer)
+{
+	//**********//
+	//Healer	//
+	//**********//
+	sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->setPosition(theHealer->GetPosition());
+	sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->setRotation(theHealer->GetRotation(), 0, 1, 0);
+
+	string IDPlus = theHealer->GetID();
+	IDPlus += ROD;
+	IDPlus += theHealer->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+}
+void SceneManagerCMPlay::BOSS_NODE(CEntity* theBoss)
+{
+	//**********//
+	//Boss		//
+	//**********//
+	sceneGraph->GetChildNode(theBoss->GetID())->GetGameObject()->setPosition(theBoss->GetPosition());
+	sceneGraph->GetChildNode(theBoss->GetID())->GetGameObject()->setRotation(theBoss->GetRotation(), 0, 1, 0);
+
+	string IDPlus = theBoss->GetID();
+	IDPlus += RARM;
+	IDPlus += theBoss->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+
+	IDPlus = theBoss->GetID();
+	IDPlus += LARM;
+	IDPlus += theBoss->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
+}
+
+void SceneManagerCMPlay::FSMApplication()
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		{
+			TANK_NODE(ListOfCharacters[i]);
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
+		{
+			MAGE_NODE(ListOfCharacters[i]);
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
+		{
+			HEALER_NODE(ListOfCharacters[i]);
+		}
+		else if (ListOfCharacters[i]->GetTYPE() == BOSS)
+		{
+			BOSS_NODE(ListOfCharacters[i]);
+		}
+	}
+}
+
+void SceneManagerCMPlay::AddTANK(string ID)
+{
 	//**********//
 	//Warrior	//
 	//**********//
@@ -307,7 +474,7 @@ void SceneManagerCMPlay::InitSceneGraph()
 	Mesh* drawMesh = resourceManager.retrieveMesh("WARRIOR_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("WARRIOR");
 	newModel->setMesh(drawMesh);
-	newModel->setName("WARRIOR");
+	newModel->setName(ID);
 	newNode->SetGameObject(newModel);
 	sceneGraph->AddChildNode(newNode);
 
@@ -315,52 +482,46 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	newModel->setName("WARRIOR_SWORD");
+
+	string IDPlus = ID;
+	IDPlus += SWORD;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
 	newModel->setMesh(drawMesh);
 	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode("WARRIOR", newNode);
+	sceneGraph->AddChildToChildNode(ID, newNode);
 
 	drawMesh = resourceManager.retrieveMesh("WARRIOR_SHIELD_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	newModel->setName("WARRIOR_SHIELD");
+
+	IDPlus = ID;
+	IDPlus += SHIELD;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
 	newModel->setMesh(drawMesh);
 	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode("WARRIOR", newNode);
+	sceneGraph->AddChildToChildNode(ID, newNode);
 
+	TANK_COUNT++;
+}
 
-	//**********//
-	//Healer	//
-	//**********//
-	drawMesh = resourceManager.retrieveMesh("HEALER_OBJ");
-	drawMesh->textureID = resourceManager.retrieveTexture("HEALER");
-	newModel = new GameObject3D;
-	newNode = new SceneNode;
-	newModel->setMesh(drawMesh);
-	newModel->setName("HEALER");
-	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildNode(newNode);
-
-	drawMesh = resourceManager.retrieveMesh("HEALER_ROD_OBJ");
-	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
-	newModel = new GameObject3D;
-	newNode = new SceneNode;
-	newModel->setName("HEALER_ROD");
-	newModel->setMesh(drawMesh);
-	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode("HEALER", newNode);
-
-
+void SceneManagerCMPlay::AddMAGE(string ID)
+{
 	//**********//
 	//Mage		//
 	//**********//
-	drawMesh = resourceManager.retrieveMesh("MAGE_OBJ");
+	GameObject3D* newModel = new GameObject3D;
+	SceneNode* newNode = new SceneNode;
+	Mesh* drawMesh = resourceManager.retrieveMesh("MAGE_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("MAGE");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
 	newModel->setMesh(drawMesh);
-	newModel->setName("MAGE");
+	newModel->setName(ID);
 	newNode->SetGameObject(newModel);
 	sceneGraph->AddChildNode(newNode);
 
@@ -368,20 +529,65 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	newModel->setName("MAGE_STAFF");
+
+	string IDPlus = ID;
+	IDPlus += STAFF;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
 	newModel->setMesh(drawMesh);
 	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode("MAGE", newNode);
+	sceneGraph->AddChildToChildNode(ID, newNode);
 
+	MAGE_COUNT++;
+}
+
+void SceneManagerCMPlay::AddHEALER(string ID)
+{
+	//**********//
+	//Healer	//
+	//**********//
+	GameObject3D* newModel = new GameObject3D;
+	SceneNode* newNode = new SceneNode;
+	Mesh* drawMesh = resourceManager.retrieveMesh("HEALER_OBJ");
+	drawMesh->textureID = resourceManager.retrieveTexture("HEALER");
+	newModel = new GameObject3D;
+	newNode = new SceneNode;
+	newModel->setMesh(drawMesh);
+	newModel->setName(ID);
+	newNode->SetGameObject(newModel);
+	sceneGraph->AddChildNode(newNode);
+
+	drawMesh = resourceManager.retrieveMesh("HEALER_ROD_OBJ");
+	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
+	newModel = new GameObject3D;
+	newNode = new SceneNode;
+
+	string IDPlus = ID;
+	IDPlus += ROD;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
+	newModel->setMesh(drawMesh);
+	newNode->SetGameObject(newModel);
+	sceneGraph->AddChildToChildNode(ID, newNode);
+
+	HEALER_COUNT++;
+}
+
+void SceneManagerCMPlay::AddBOSS(string ID)
+{
 	//**********//
 	//Boss		//
 	//**********//
-	drawMesh = resourceManager.retrieveMesh("BOSS_OBJ");
+	GameObject3D* newModel = new GameObject3D;
+	SceneNode* newNode = new SceneNode;
+	Mesh* drawMesh = resourceManager.retrieveMesh("BOSS_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("BOSS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
 	newModel->setMesh(drawMesh);
-	newModel->setName("BOSS");
+	newModel->setName(ID);
 	newNode->SetGameObject(newModel);
 	sceneGraph->AddChildNode(newNode);
 
@@ -389,60 +595,29 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("BOSS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	newModel->setName("BOSS_R_ARM");
+
+	string IDPlus = ID;
+	IDPlus += RARM;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
 	newModel->setMesh(drawMesh);
 	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode("BOSS", newNode);
+	sceneGraph->AddChildToChildNode(ID, newNode);
 
 	drawMesh = resourceManager.retrieveMesh("BOSS_ARM_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("BOSS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
-	newModel->setName("BOSS_L_ARM");
+
+	IDPlus = ID;
+	IDPlus += LARM;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
 	newModel->setMesh(drawMesh);
 	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode("BOSS", newNode);
-	
-}
+	sceneGraph->AddChildToChildNode(ID, newNode);
 
-void SceneManagerCMPlay::FSMApplication()
-{
-	//**********//
-	//Warrior	//
-	//**********//
-	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->GetPosition());
-	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setRotation(Tank->GetRotation(), 0, 1, 0);
-
-	sceneGraph->GetChildNode("WARRIOR_SWORD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
-
-	sceneGraph->GetChildNode("WARRIOR_SHIELD")->GetGameObject()->setPosition(Vector3(0, 0, 5));
-
-
-	//**********//
-	//Healer	//
-	//**********//
-	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(Healer->GetPosition());
-	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setRotation(Healer->GetRotation(), 0, 1, 0);
-
-	sceneGraph->GetChildNode("HEALER_ROD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
-
-
-	//**********//
-	//Mage	//
-	//**********//	
-	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(Mage->GetPosition());
-	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setRotation(Mage->GetRotation(), 0, 1, 0);
-
-	sceneGraph->GetChildNode("MAGE_STAFF")->GetGameObject()->setPosition(Vector3(0, 0, -5));
-
-
-	//**********//
-	//Boss		//
-	//**********//
-	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(Boss->GetPosition());
-	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setRotation(Boss->GetRotation(), 0, 1, 0);
-
-	sceneGraph->GetChildNode("BOSS_L_ARM")->GetGameObject()->setPosition(Vector3(0, 0, -5));
-
-	sceneGraph->GetChildNode("BOSS_R_ARM")->GetGameObject()->setPosition(Vector3(0, 0, 5));
+	BOSS_COUNT++;
 }

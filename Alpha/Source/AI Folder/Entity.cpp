@@ -34,6 +34,13 @@ int CEntity::Probability(int lowerLimit, int upperLimit)
 	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
 }
 
+void CEntity::RandomSpawn(int lowerLimit, int upperLimit)
+{
+	int Rand1 = rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
+	int Rand2 = rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
+	this->Position.Set(Rand1, 0.0f, Rand2);
+}
+
 void CEntity::SetIsTarget(bool TF)
 {
 	this->IsTarget = TF;
@@ -59,6 +66,22 @@ float CEntity::GetHpPercent(void)
 float CEntity::GetRotation(void)
 {
 	return this->m_Rotation;
+}
+
+void CEntity::SetID(string newID, string newTYPE)
+{
+	this->ID = newID;
+	this->TYPE = newTYPE;
+}
+
+string CEntity::GetID(void)
+{
+	return this->ID;
+}
+
+string CEntity::GetTYPE(void)
+{
+	return this->TYPE;
 }
 
 void CEntity::FaceTarget(void)
@@ -91,9 +114,8 @@ void CEntity::Attack(void)
 
 }
 
-void CEntity::RunFSM(double dt)
+void CEntity::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
-
 	switch (state)
 	{
 	case MOVE:
@@ -131,6 +153,47 @@ void CEntity::RunFSM(double dt)
 		break;
 	}
 }
+
+void CEntity::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
+{
+	switch (state)
+	{
+	case MOVE:
+		if (m_AttackRange < (TargetPosition - Position).Length())
+		{
+			Move(TargetPosition, dt);
+		}
+		else
+		{
+			state = ATTACK;
+		}
+		break;
+	case ATTACK:
+		if (m_AttackRange >= (TargetPosition - Position).Length())
+		{
+			//Do attack 
+
+		}
+		else
+		{
+			state = MOVE;
+		}
+		break;
+	case RETREAT:
+		if (m_DangerZone > (Position - DangerPosition).Length())
+		{
+			Retreat(DangerPosition, dt);
+		}
+		else
+		{
+			state = ATTACK;
+		}
+		break;
+	default:
+		break;
+	}
+}
+
 void CEntity::UpdateAttacking(void)
 {
 

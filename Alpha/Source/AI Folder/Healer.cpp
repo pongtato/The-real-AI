@@ -5,7 +5,6 @@ CHealer::CHealer()
 {
 	IsTarget = false;
 	ClassName = "Healer: ";
-	Position.Set(10.f,0.f,20.f);
 	m_MoveSpeed = 30.f;
 	m_AttackRange = 45.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
@@ -13,6 +12,11 @@ CHealer::CHealer()
 
 	m_HP = 100;
 	m_Curent_HP = m_HP;
+
+	Position.Set(
+		Probability(0, 100),
+		0.1f,
+		Probability(0, 100));
 }
 
 
@@ -45,7 +49,7 @@ string CHealer::GetState(void)
 	}
 }
 
-void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newDangerPosition)
+void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
 	float lowestHP = 0;
 

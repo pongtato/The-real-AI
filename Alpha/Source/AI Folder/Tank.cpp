@@ -5,7 +5,6 @@ CTank::CTank()
 {
 	IsTarget = false;
 	ClassName = "Tank: ";
-	Position.Set(10.f, 0.f, 0.f);
 	m_MoveSpeed = 20.f;
 	m_AttackRange = 15.0f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
@@ -14,6 +13,11 @@ CTank::CTank()
 	m_HP = 100;
 	//Testing
 	m_Curent_HP = 50;
+
+	Position.Set(
+		Probability(0, 100),
+		0.1f,
+		Probability(0, 100));
 }
 
 

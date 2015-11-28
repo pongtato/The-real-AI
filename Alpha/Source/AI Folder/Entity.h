@@ -6,6 +6,7 @@
 #include "Vector3.h"
 #include <time.h>
 #include <stdlib.h>
+#include <vector>
 
 using namespace std;
 
@@ -33,6 +34,8 @@ protected:
 	Vector3 DangerPosition;	
 
 	string ClassName;
+	string ID;
+	string TYPE;
 
 public:
 	CEntity();
@@ -43,11 +46,14 @@ public:
 	void SetIsTarget(bool TF);
 	void SetDangerZone(float DZ);
 	void FaceTarget(void);
+	void SetID(string newID, string newTYPE);
 
 	float GetHpPercent(void);
 	float GetAttackRange(void);
 	float GetRotation(void);
 	Vector3 GetPosition();
+	string GetID(void);
+	string GetTYPE(void);
 
 	enum STATES
 	{
@@ -70,12 +76,13 @@ public:
 	void Attack(void);
 	virtual void UpdateAttacking(void);
 
-	virtual void RunFSM(double dt);
+	virtual void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
+	virtual void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 
 	virtual int Probability(int lowerLimit, int upperLimit);
 
-	virtual string GetState(void);
+	virtual void RandomSpawn(int lowerLimit, int upperLimit);
 
-	Targets ID;
+	virtual string GetState(void);
 };
 

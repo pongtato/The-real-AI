@@ -8,12 +8,28 @@
 #include "AI Folder\Mage.h"
 #include "AI Folder\Boss.h"
 
+#define WARRIOR "WARRIOR"
+#define SWORD	"_SWORD_"
+#define SHIELD	"_SHIELD_"
+#define MAGE "MAGE"
+#define ROD	"_ROD_"
+#define HEALER "HEALER"
+#define STAFF	"_STAFF_"
+#define BOSS "BOSS"
+#define LARM "_LARM_"
+#define RARM "_RARM_"
+
 class SceneManagerCMPlay : public SceneManagerGameplay
 {
 private:
 	vector<GameObject3D*> objectList;
 	SceneNode* sceneGraph;
 	vector<CEntity*> ListOfCharacters;
+
+	int TANK_COUNT;
+	int MAGE_COUNT;
+	int	HEALER_COUNT;
+	int BOSS_COUNT;
 
 public:
 	SceneManagerCMPlay();
@@ -35,6 +51,16 @@ public:
 	void RenderBG();
 	void RenderStaticObject();
 	void RenderMobileObject();
+
+	void AddTANK(string ID);
+	void AddMAGE(string ID);
+	void AddHEALER(string ID);
+	void AddBOSS(string ID);
+
+	void TANK_NODE(CEntity* theTank);
+	void MAGE_NODE(CEntity* theMage);
+	void HEALER_NODE(CEntity* theHealer);
+	void BOSS_NODE(CEntity* theBoss);
 
 	CTank*		Tank;
 	CHealer*	Healer;
