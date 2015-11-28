@@ -129,6 +129,7 @@ void SceneManagerCMPlay::Update(double dt)
 			Mage->m_DangerZone = Boss->m_AttackRange * 5.f;
 			break;
 		}
+		
 		Boss->TargetChangeTimer = 0.0f;
 	}
 
@@ -155,6 +156,8 @@ void SceneManagerCMPlay::Update(double dt)
 	}
 
 	Boss->RunFSM(dt);
+
+	
 
 	Tank->TargetPosition = Boss->Position;
 	Tank->DangerPosition = Boss->Position;
@@ -456,6 +459,10 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Warrior	//
 	//**********//
+	Vector3 dirVec = (Tank->TargetPosition - Tank->Position);
+	dirVec = dirVec.Normalized();
+	float theta = Math::RadianToDegree(atan2(dirVec.x, dirVec.z)) + (float)Tank->TANK_LOOK_OFFSET;
+	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setRotation(theta, 0, 1, 0);
 	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
@@ -467,6 +474,11 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Healer	//
 	//**********//
+	
+	dirVec = (Healer->TargetPosition - Healer->Position);
+	dirVec = dirVec.Normalized();
+	theta = Math::RadianToDegree(atan2(dirVec.x, dirVec.z)) + (float)Tank->TANK_LOOK_OFFSET;
+	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setRotation(theta, 0, 1, 0);
 	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(Healer->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
@@ -476,6 +488,11 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Mage	//
 	//**********//	
+
+	dirVec = (Mage->TargetPosition - Mage->Position);
+	dirVec = dirVec.Normalized();
+	theta = Math::RadianToDegree(atan2(dirVec.x, dirVec.z)) + (float)Tank->TANK_LOOK_OFFSET;
+	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setRotation(theta, 0, 1, 0);
 	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(Mage->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
@@ -485,6 +502,12 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Boss		//
 	//**********//
+	
+	dirVec = (Boss->TargetPosition - Boss->Position);
+	dirVec = dirVec.Normalized();
+	theta = Math::RadianToDegree(atan2(dirVec.x, dirVec.z)) + (float)Tank->TANK_LOOK_OFFSET;
+	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setRotation(theta, 0, 1, 0);
+
 	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(Boss->Position);
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 

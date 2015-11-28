@@ -10,5 +10,7 @@ public:
 	void RunFSM(double dt);
 
 	void UpdateAttacking(void);
+	
+	const static int TANK_LOOK_OFFSET = 90;
 };
 

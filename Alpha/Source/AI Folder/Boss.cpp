@@ -5,13 +5,13 @@ CBoss::CBoss()
 :TargetChangeProbability (33.3f)
 ,TargetChangeDelay(300.f)
 {
-	InitialPos.Set(60.f, 0.f, 0.f);
+	InitialPos.Set(60.f, 0.1f, 0.f);
 	ClassName = "Boss: ";
 	Position = InitialPos;
 	TargetAcquireRange = 10.f;
 	IsTaunted = false;
 	TargetChangeTimer = TargetChangeDelay;
-	m_AttackRange = 0.5f;
+	m_AttackRange = 2.0f;
 	m_MoveSpeed = 0.01f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = BOSS;

@@ -38,6 +38,7 @@ void SceneNode::Draw(SceneManager *sceneManager)
 
 	if (gameObject3D != NULL)
 	{
+		//gameObject3D->setRotation(0, 0, 1, 0);
 		sceneManager->RenderPush(gameObject3D->getProperties().modelProperties);
 		sceneManager->Render3DMesh(gameObject3D->getMesh(), true);
 	}

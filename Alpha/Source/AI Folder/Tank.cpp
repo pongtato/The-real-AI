@@ -5,9 +5,9 @@ CTank::CTank()
 {
 	IsTarget = false;
 	ClassName = "Tank: ";
-	Position.Set(40.f, 0.f, 0.f);
+	Position.Set(40.f, 0.0f, 10.f);
 	m_MoveSpeed = 0.02f;
-	m_AttackRange = 1.0f;
+	m_AttackRange = 4.0f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = TANK;
 }
