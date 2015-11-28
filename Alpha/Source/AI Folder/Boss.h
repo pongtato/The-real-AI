@@ -17,24 +17,19 @@ public:
 		RESET
 	};
 
-	float TargetChangeTimer;
-	const float TargetChangeDelay;
+	const float TargetChangeDelay;	
+	bool IsTaunted;	
+	int CurrentTarget;
 	float TargetAcquireRange;
-	bool IsTaunted;
-	const int TargetChangeProbability;
+	float TargetChangeTimer;
+	float ResetRange;
+	Vector3 InitialPos;
 	vector<CEntity*> TargetList;
 
-	int ChooseTarget(int RNG);
-	void TickTimer(void);
-	Targets target;
-
-
-	Vector3 InitialPos;
-	float ResetRange;
-
-	void RunFSM(double dt);
 	string GetState(void);
-
 	void UpdateAttacking(void);
+	void TickTimer(double dt);
+	void RunFSM(double dt, vector<CEntity*> ListOfEnemies);	
+	int GetCurrentTarget(void);
 };
 

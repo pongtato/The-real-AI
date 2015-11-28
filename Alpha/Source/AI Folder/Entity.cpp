@@ -13,27 +13,54 @@ CEntity::~CEntity()
 {
 }
 
+Vector3 CEntity::GetPosition()
+{
+	return this->Position;
+}
+
+void CEntity::SetTargetPosition(Vector3 TargetPosition)
+{
+	this->TargetPosition = TargetPosition;
+}
+
+void CEntity::SetDangerPosition(Vector3 DangerPosition)
+{
+	this->DangerPosition = DangerPosition;
+}
+
 int CEntity::Probability(int lowerLimit, int upperLimit)
 {
 	return rand() % (upperLimit - lowerLimit + 1) + lowerLimit;
 }
 
-void CEntity::Move(Vector3 TargetDestination)
+void CEntity::SetIsTarget(bool TF)
+{
+	this->IsTarget = TF;
+}
+
+float CEntity::GetHpPercent(void)
+{
+	float m_HP_Percent = ((float)this->m_Curent_HP / (float)this->m_HP) * 100;
+
+	return m_HP_Percent;
+}
+
+void CEntity::Move(Vector3 TargetDestination, double dt)
 {
 	Vector3 Direction;
 	
 	// Get the direction
 	Direction = TargetDestination - Position;
-	Position += Direction.Normalized() * m_MoveSpeed;
+	Position += Direction.Normalized() * m_MoveSpeed * dt;
 }
 
-void CEntity::Retreat(Vector3 TargetDestination)
+void CEntity::Retreat(Vector3 TargetDestination, double dt)
 {
 	Vector3 Direction;
 
 	// Get the direction
 	Direction = Position - TargetDestination;
-	Position += Direction.Normalized() * m_RunSpeed;
+	Position += Direction.Normalized() * m_RunSpeed * dt;
 }
 
 void CEntity::Attack(void)
@@ -49,7 +76,7 @@ void CEntity::RunFSM(double dt)
 	case MOVE:
 		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition);
+			Move(TargetPosition, dt);
 		}
 		else 
 		{
@@ -70,7 +97,7 @@ void CEntity::RunFSM(double dt)
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
-			Retreat(DangerPosition);
+			Retreat(DangerPosition, dt);
 		}
 		else
 		{

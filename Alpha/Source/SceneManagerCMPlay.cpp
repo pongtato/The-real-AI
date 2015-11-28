@@ -61,6 +61,10 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	//perspective.SetToOrtho(-80, 80, -60, 60, -1000, 1000);
 	projectionStack.LoadMatrix(perspective);
 
+	ListOfCharacters.push_back(Tank);
+	ListOfCharacters.push_back(Mage);
+	ListOfCharacters.push_back(Healer);
+
 	InitSceneGraph();
 	lightEnabled = true;
 }
@@ -89,84 +93,28 @@ void SceneManagerCMPlay::Update(double dt)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	Boss->TickTimer();
-	//Boss change target
-	if (Boss->TargetChangeTimer > Boss->TargetChangeDelay)
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if ((Healer->Position - Boss->Position).Length() <= Boss->TargetAcquireRange)
+		if (i != Boss->GetCurrentTarget())
 		{
-			Boss->TargetList.push_back(Healer);
+			//Set all units that are not the boss current target to false;
+			ListOfCharacters[i]->SetIsTarget(false);
 		}
-
-		if ((Mage->Position - Boss->Position).Length() <= Boss->TargetAcquireRange)
+		else
 		{
-			Boss->TargetList.push_back(Mage);
+			//Bosses target
+			ListOfCharacters[i]->SetIsTarget(true);
 		}
-
-		if ((Tank->Position - Boss->Position).Length() <= Boss->TargetAcquireRange)
-		{
-			Boss->TargetList.push_back(Tank);
-		}
-
-		switch (Boss->ChooseTarget(Boss->Probability(0, 100)))
-		{
-		case CBoss::TANK:
-			Tank->IsTarget = true;
-			Healer->IsTarget = false;
-			Mage->IsTarget = false;
-			Tank->m_DangerZone = Boss->m_AttackRange * 5.f;
-			break;
-		case CBoss::HEALER:
-			Tank->IsTarget = false;
-			Healer->IsTarget = true;
-			Mage->IsTarget = false;
-			Healer->m_DangerZone = Boss->m_AttackRange * 5.f;
-			break;
-		case CBoss::MAGE:
-			Tank->IsTarget = false;
-			Healer->IsTarget = false;
-			Mage->IsTarget = true;
-			Mage->m_DangerZone = Boss->m_AttackRange * 5.f;
-			break;
-		}
-		Boss->TargetChangeTimer = 0.0f;
 	}
 
-	//Reset all targets if boss is retreating
-	if (Boss->state == CBoss::STATES::RESET)
-	{
-		Tank->IsTarget = false;
-		Healer->IsTarget = false;
-		Mage->IsTarget = false;
-	}
+	Boss->RunFSM(dt, ListOfCharacters);
 
-	//Constaly update target
-	switch (Boss->target)
-	{
-	case CBoss::TANK:
-		Boss->TargetPosition = Tank->Position;
-		break;
-	case CBoss::MAGE:
-		Boss->TargetPosition = Mage->Position;
-		break;
-	case CBoss::HEALER:
-		Boss->TargetPosition = Healer->Position;
-		break;
-	}
+	Tank->RunFSM(dt,Boss->GetPosition(),Boss->GetPosition());
 
-	Boss->RunFSM(dt);
+	Mage->RunFSM(dt,Boss->GetPosition(), Boss->GetPosition());
 
-	Tank->TargetPosition = Boss->Position;
-	Tank->DangerPosition = Boss->Position;
-	Tank->RunFSM(dt);
-
-	Mage->TargetPosition = Boss->Position;
-	Mage->DangerPosition = Boss->Position;
-	Mage->RunFSM(dt);
-
-	Healer->TargetPosition = Tank->Position;
-	Healer->DangerPosition = Boss->Position;
-	Healer->RunFSM(dt);
+	Healer->RunFSM(dt, ListOfCharacters, Boss->GetPosition());
 }
 
 void SceneManagerCMPlay::Render()
@@ -456,7 +404,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Warrior	//
 	//**********//
-	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->Position);
+	sceneGraph->GetChildNode("WARRIOR")->GetGameObject()->setPosition(Tank->GetPosition());
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("WARRIOR_SWORD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
@@ -467,7 +415,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Healer	//
 	//**********//
-	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(Healer->Position);
+	sceneGraph->GetChildNode("HEALER")->GetGameObject()->setPosition(Healer->GetPosition());
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("HEALER_ROD")->GetGameObject()->setPosition(Vector3(0, 0, -5));
@@ -476,7 +424,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Mage	//
 	//**********//	
-	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(Mage->Position);
+	sceneGraph->GetChildNode("MAGE")->GetGameObject()->setPosition(Mage->GetPosition());
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("MAGE_STAFF")->GetGameObject()->setPosition(Vector3(0, 0, -5));
@@ -485,7 +433,7 @@ void SceneManagerCMPlay::FSMApplication()
 	//**********//
 	//Boss		//
 	//**********//
-	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(Boss->Position);
+	sceneGraph->GetChildNode("BOSS")->GetGameObject()->setPosition(Boss->GetPosition());
 	//sceneGraph->GetChildNode("Warrior")->GetGameObject()->setRotation(90, 0, 1, 0);
 
 	sceneGraph->GetChildNode("BOSS_L_ARM")->GetGameObject()->setPosition(Vector3(0, 0, -5));

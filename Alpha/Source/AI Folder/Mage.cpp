@@ -6,10 +6,13 @@ CMage::CMage()
 	IsTarget = false;
 	ClassName = "Mage: ";
 	Position.Set(40.f, 0.f, -20.f);
-	m_MoveSpeed = 0.02f;
-	m_AttackRange = 3.f;
+	m_MoveSpeed = 20.f;
+	m_AttackRange = 45.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = MAGE;
+
+	m_HP = 100;
+	m_Curent_HP = m_HP;
 }
 
 
@@ -17,8 +20,11 @@ CMage::~CMage()
 {
 }
 
-void CMage::RunFSM(double dt)
+void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	TargetPosition = newTargetPosition;
+	DangerPosition = newDangerPosition;
+
 	if (m_DangerZone > (Position - DangerPosition).Length())
 	{
 		state = RETREAT;
@@ -29,7 +35,7 @@ void CMage::RunFSM(double dt)
 	case MOVE:
 		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition);
+			Move(TargetPosition, dt);
 		}
 		else
 		{
@@ -49,7 +55,7 @@ void CMage::RunFSM(double dt)
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
-			Retreat(DangerPosition);
+			Retreat(DangerPosition, dt);
 		}
 		else
 		{

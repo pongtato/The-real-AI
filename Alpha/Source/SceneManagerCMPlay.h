@@ -13,6 +13,8 @@ class SceneManagerCMPlay : public SceneManagerGameplay
 private:
 	vector<GameObject3D*> objectList;
 	SceneNode* sceneGraph;
+	vector<CEntity*> ListOfCharacters;
+
 public:
 	SceneManagerCMPlay();
 	~SceneManagerCMPlay();

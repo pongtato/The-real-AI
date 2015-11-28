@@ -11,9 +11,35 @@ using namespace std;
 
 class CEntity
 {
+protected:
+	int state;
+	int m_HP;
+	int m_Curent_HP;
+	int m_Priority;
+	float m_MoveSpeed;
+	float m_RunSpeed;
+	float m_Damage;
+	float m_AttackSpeed;
+	float m_Cooldown;
+	float m_AttackRange;
+	float m_DangerZone;
+	bool IsTarget;
+
+	Vector3 Position;
+	Vector3 TargetPosition;
+	Vector3 DangerPosition;
+
+	string ClassName;
+
 public:
 	CEntity();
 	~CEntity();
+
+	Vector3 GetPosition();
+	void SetTargetPosition(Vector3 TargetPosition);
+	void SetDangerPosition(Vector3 DangerPosition);
+	void SetIsTarget(bool TF);
+	float GetHpPercent(void);
 
 	enum STATES
 	{
@@ -30,23 +56,8 @@ public:
 		BOSS,
 	};
 
-	int state;
-	int m_HP;
-	int m_Priority;
-	float m_MoveSpeed;
-	float m_RunSpeed;
-	float m_Damage;
-	float m_AttackSpeed;
-	float m_Cooldown;
-	float m_AttackRange;
-	float m_DangerZone;
-
-	Vector3 Position;
-	Vector3 TargetPosition;
-	Vector3 DangerPosition;
-
-	void Move(Vector3 TargetDestination);
-	void Retreat(Vector3 TargetDestination);
+	void Move(Vector3 TargetDestination, double dt);
+	void Retreat(Vector3 TargetDestination, double dt);
 
 	void Attack(void);
 	virtual void UpdateAttacking(void);
@@ -56,9 +67,6 @@ public:
 	virtual int Probability(int lowerLimit, int upperLimit);
 
 	virtual string GetState(void);
-	string ClassName;
-
-	bool IsTarget;
 
 	Targets ID;
 };

@@ -6,10 +6,13 @@ CHealer::CHealer()
 	IsTarget = false;
 	ClassName = "Healer: ";
 	Position.Set(40.f,0.f,20.f);
-	m_MoveSpeed = 0.03f;
-	m_AttackRange = 3.f;
+	m_MoveSpeed = 30.f;
+	m_AttackRange = 45.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = HEALER;
+
+	m_HP = 100;
+	m_Curent_HP = m_HP;
 }
 
 
@@ -42,8 +45,22 @@ string CHealer::GetState(void)
 	}
 }
 
-void CHealer::RunFSM(double dt)
+void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newDangerPosition)
 {
+	float lowestHP = 0;
+
+	DangerPosition = newDangerPosition;
+
+	//Go through list for lowest hp
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetHpPercent() > lowestHP)
+		{
+			lowestHP = ListOfCharacters[i]->GetHpPercent();
+			TargetPosition = ListOfCharacters[i]->GetPosition();
+		}
+	}
+
 	if (m_DangerZone > (Position - DangerPosition).Length())
 	{
 		state = RETREAT;
@@ -54,7 +71,7 @@ void CHealer::RunFSM(double dt)
 	case MOVE:
 		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition);
+			Move(TargetPosition, dt);
 		}
 		else
 		{
@@ -74,7 +91,7 @@ void CHealer::RunFSM(double dt)
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
-			Retreat(DangerPosition);
+			Retreat(DangerPosition, dt);
 		}
 		else
 		{

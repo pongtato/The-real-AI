@@ -2,8 +2,7 @@
 
 
 CBoss::CBoss()
-:TargetChangeProbability (33.3f)
-,TargetChangeDelay(300.f)
+:TargetChangeDelay(300.f)
 {
 	InitialPos.Set(60.f, 0.f, 0.f);
 	ClassName = "Boss: ";
@@ -11,11 +10,12 @@ CBoss::CBoss()
 	TargetAcquireRange = 10.f;
 	IsTaunted = false;
 	TargetChangeTimer = TargetChangeDelay;
-	m_AttackRange = 0.5f;
-	m_MoveSpeed = 0.01f;
+	m_AttackRange = 15.f;
+	m_MoveSpeed = 10.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = BOSS;
-	ResetRange = 6.f;
+	ResetRange = 100.f;
+	CurrentTarget = 0;
 }
 
 
@@ -23,56 +23,42 @@ CBoss::~CBoss()
 {
 }
 
-int CBoss::ChooseTarget(int RNG)
-{
-	
-	//Choose the unlucky boi
-	// 0 ~ 33
-	if (RNG >= 0 && RNG <= TargetChangeProbability * (HEALER+1))
-	{
-		target = HEALER;
-	}
-	// 34 ~ 66
-	else if (RNG > TargetChangeProbability * (HEALER+1) && RNG <= TargetChangeProbability * (MAGE + 1))
-	{
-		target = MAGE;
-	}
-	//67 ~ 99
-	else if (RNG > TargetChangeProbability * (MAGE+1) && RNG <= TargetChangeProbability * (TANK+1))
-	{
-		target = TANK;
-	}
-
-	if (m_AttackRange < TargetPosition.Length())
-	{
-		state = MOVE;
-	}
-
-	//Clear for next choice
-	TargetList.clear();
-
-	return target;
-}
-
-void CBoss::TickTimer(void)
+void CBoss::TickTimer(double dt)
 {
 	TargetChangeTimer += 1.f;
 }
 
-
-void CBoss::RunFSM(double dt)
+int CBoss::GetCurrentTarget(void)
 {
+	return this->CurrentTarget;
+}
+
+
+void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies)
+{
+	//Boss event timer
+	TickTimer(dt);
+
+	if (TargetChangeTimer > TargetChangeDelay)
+	{
+		CurrentTarget =	Probability(0, ListOfEnemies.size()-1);
+		TargetChangeTimer = 0.0f;
+	}
+	TargetPosition = ListOfEnemies[CurrentTarget]->GetPosition();
+
+	//Prevent game from leaving world space
 	if ((InitialPos - Position).Length() > ResetRange)
 	{
 		this->state = RESET;
 	}
 
+	//Handle states
 	switch (state)
 	{
 	case MOVE:
 		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition);
+			Move(TargetPosition, dt);
 		}
 		else
 		{
@@ -92,7 +78,7 @@ void CBoss::RunFSM(double dt)
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
-			Retreat(DangerPosition);
+			Retreat(DangerPosition, dt);
 		}
 		else
 		{
@@ -102,7 +88,7 @@ void CBoss::RunFSM(double dt)
 	case RESET:
 		if ((TargetPosition - Position).Length() > 1.f)
 		{
-			Move(InitialPos);
+			Move(InitialPos, dt);
 		}
 		else
 		{
