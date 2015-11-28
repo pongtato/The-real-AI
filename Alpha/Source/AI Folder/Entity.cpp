@@ -38,6 +38,16 @@ void CEntity::SetIsTarget(bool TF)
 	this->IsTarget = TF;
 }
 
+float CEntity::GetAttackRange(void)
+{
+	return this->m_AttackRange;
+}
+
+void CEntity::SetDangerZone(float DZ)
+{
+	this->m_DangerZone = DZ;
+}
+
 float CEntity::GetHpPercent(void)
 {
 	float m_HP_Percent = ((float)this->m_Curent_HP / (float)this->m_HP) * 100;

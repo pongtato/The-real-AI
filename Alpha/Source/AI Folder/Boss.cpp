@@ -2,9 +2,9 @@
 
 
 CBoss::CBoss()
-:TargetChangeDelay(300.f)
+:TargetChangeDelay(10.f)
 {
-	InitialPos.Set(60.f, 0.1f, 0.f);
+	InitialPos.Set(80.f, 0.1f, 0.f);
 	ClassName = "Boss: ";
 	Position = InitialPos;
 	TargetAcquireRange = 10.f;

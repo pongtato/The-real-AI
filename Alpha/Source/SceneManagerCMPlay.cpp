@@ -61,6 +61,10 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	//perspective.SetToOrtho(-80, 80, -60, 60, -1000, 1000);
 	projectionStack.LoadMatrix(perspective);
 
+	Tank->SetDangerZone(Boss->GetAttackRange() * 1.5f);
+	Mage->SetDangerZone(Boss->GetAttackRange() * 1.5f);
+	Healer->SetDangerZone(Boss->GetAttackRange() * 1.5f);
+
 	ListOfCharacters.push_back(Tank);
 	ListOfCharacters.push_back(Mage);
 	ListOfCharacters.push_back(Healer);
@@ -111,6 +115,8 @@ void SceneManagerCMPlay::Update(double dt)
 	Boss->RunFSM(dt, ListOfCharacters);
 
 	Tank->RunFSM(dt,Boss->GetPosition(),Boss->GetPosition());
+
+	cout << Tank->GetState() << endl;
 
 	Mage->RunFSM(dt,Boss->GetPosition(), Boss->GetPosition());
 

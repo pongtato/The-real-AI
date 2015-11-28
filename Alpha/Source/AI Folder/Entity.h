@@ -35,11 +35,14 @@ public:
 	CEntity();
 	~CEntity();
 
-	Vector3 GetPosition();
 	void SetTargetPosition(Vector3 TargetPosition);
 	void SetDangerPosition(Vector3 DangerPosition);
 	void SetIsTarget(bool TF);
+	void SetDangerZone(float DZ);
+
 	float GetHpPercent(void);
+	float GetAttackRange(void);
+	Vector3 GetPosition();
 
 	enum STATES
 	{
