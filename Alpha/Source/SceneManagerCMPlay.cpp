@@ -41,7 +41,7 @@ void SceneManagerCMPlay::Config()
 void SceneManagerCMPlay::Update(double dt)
 {
 	SceneManagerGameplay::Update(dt);
-
+	FSMApplication();
 	//Uncomment the following line to play sound
 	//resourceManager.retrieveSound("MenuFeedback");
 
@@ -203,7 +203,7 @@ void SceneManagerCMPlay::RenderStaticObject()
 
 void SceneManagerCMPlay::RenderMobileObject()
 {
-	FSMApplication();
+	
 	sceneGraph->Draw(this);
 }
 
@@ -216,12 +216,13 @@ void SceneManagerCMPlay::InitSceneGraph()
 	//**********//
 	GameObject3D* newModel = new GameObject3D;
 	SceneNode* newNode = new SceneNode;
+	CEntity* type = new CTank;
 	Mesh* drawMesh = resourceManager.retrieveMesh("WARRIOR_OBJ");
-
 	drawMesh->textureID = resourceManager.retrieveTexture("WARRIOR");
 	newModel->setMesh(drawMesh);
 	newModel->setName("WARRIOR");
 	newNode->SetGameObject(newModel);
+	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("WARRIOR_SWORD_OBJ");
@@ -250,9 +251,11 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("HEALER");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
+	type = new CHealer;
 	newModel->setMesh(drawMesh);
 	newModel->setName("HEALER");
 	newNode->SetGameObject(newModel);
+	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("HEALER_ROD_OBJ");
@@ -272,9 +275,11 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("MAGE");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
+	type = new CMage;
 	newModel->setMesh(drawMesh);
 	newModel->setName("MAGE");
 	newNode->SetGameObject(newModel);
+	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("MAGE_STAFF_OBJ");
@@ -293,9 +298,11 @@ void SceneManagerCMPlay::InitSceneGraph()
 	drawMesh->textureID = resourceManager.retrieveTexture("BOSS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
+	type = new CBoss;
 	newModel->setMesh(drawMesh);
 	newModel->setName("BOSS");
 	newNode->SetGameObject(newModel);
+	newNode->SetEntityType(type);
 	sceneGraph->AddChildNode(newNode);
 
 	drawMesh = resourceManager.retrieveMesh("BOSS_ARM_OBJ");
@@ -349,4 +356,10 @@ void SceneManagerCMPlay::FSMApplication()
 	sceneGraph->GetChildNode("BOSS_L_ARM")->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
 	sceneGraph->GetChildNode("BOSS_R_ARM")->GetGameObject()->setPosition(Vector3(0, 0, 5));
+
+
+	sceneGraph->GetChildNode("WARRIOR")->GetEntityType()->RunFSM(0.33f);
+	sceneGraph->GetChildNode("HEALER")->GetEntityType()->RunFSM(0.33f);
+	sceneGraph->GetChildNode("MAGE")->GetEntityType()->RunFSM(0.33f);
+	sceneGraph->GetChildNode("BOSS")->GetEntityType()->RunFSM(0.33f);
 }

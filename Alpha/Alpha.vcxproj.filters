@@ -204,6 +204,21 @@
     <ClCompile Include="Source\SceneManagerCMPause.cpp">
       <Filter>Managers\SceneManagers\SceneCM</Filter>
     </ClCompile>
+    <ClCompile Include="Source\AI Folder\Boss.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AI Folder\Entity.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AI Folder\Healer.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AI Folder\Mage.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AI Folder\Tank.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Utility.h">
@@ -355,6 +370,24 @@
     </ClInclude>
     <ClInclude Include="Source\SceneManagerTransition.h">
       <Filter>Managers\SceneManagers\Template</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI Folder\Boss.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI Folder\Entity.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI Folder\HeaderAI.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI Folder\Healer.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI Folder\Mage.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AI Folder\Tank.h">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

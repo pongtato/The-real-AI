@@ -86,6 +86,11 @@
   <ItemGroup>
     <ClCompile Include="Source\AABB2D.cpp" />
     <ClCompile Include="Source\AABB3D.cpp" />
+    <ClCompile Include="Source\AI Folder\Boss.cpp" />
+    <ClCompile Include="Source\AI Folder\Entity.cpp" />
+    <ClCompile Include="Source\AI Folder\Healer.cpp" />
+    <ClCompile Include="Source\AI Folder\Mage.cpp" />
+    <ClCompile Include="Source\AI Folder\Tank.cpp" />
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\Button2D.cpp" />
     <ClCompile Include="Source\Button3D.cpp" />
@@ -129,6 +134,12 @@
   <ItemGroup>
     <ClInclude Include="Source\AABB2D.h" />
     <ClInclude Include="Source\AABB3D.h" />
+    <ClInclude Include="Source\AI Folder\Boss.h" />
+    <ClInclude Include="Source\AI Folder\Entity.h" />
+    <ClInclude Include="Source\AI Folder\HeaderAI.h" />
+    <ClInclude Include="Source\AI Folder\Healer.h" />
+    <ClInclude Include="Source\AI Folder\Mage.h" />
+    <ClInclude Include="Source\AI Folder\Tank.h" />
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\Button2D.h" />
     <ClInclude Include="Source\Button3D.h" />
