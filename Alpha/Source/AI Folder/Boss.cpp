@@ -8,7 +8,6 @@ CBoss::CBoss()
 	TargetAcquireRange = 10.f;
 	IsTaunted = false;
 	TargetChangeTimer = TargetChangeDelay;
-	m_AttackRange = 15.f;
 	m_MoveSpeed = 10.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = BOSS;
@@ -27,6 +26,16 @@ CBoss::CBoss()
 	m_TotalDamageTaken = 0.f;
 	m_CastingTimer = 0.f;
 	m_Damage = DEFAULT_DAMAGE;
+
+	m_ArmSwing = false;
+	m_ArmRotation = 0.0f;
+
+	//Attack Init
+	m_AttackRange = 15.f;
+	m_AttackSpeed = 1.0f;
+	m_LastAttackTimer = m_AttackDelay;
+
+	TakingAction = false;
 }
 
 
@@ -97,8 +106,20 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	case ATTACK:
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
-			//Do attack 
-			UpdateAttacking(ListOfEnemies[CurrentTarget],dt);
+			TakingAction = true;
+		}
+
+		if (TakingAction)
+		{
+			if (m_LastAttackTimer >= m_AttackDelay)
+			{
+				//Do attack 
+				UpdateAttacking(ListOfEnemies[CurrentTarget],dt);
+			}
+			else
+			{
+				TakingAction = false;
+			}
 		}
 		else
 		{
@@ -201,6 +222,34 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 		cout << "Boss is channelling its skill!!!" << endl;
 #endif
 	}
+
+	//True  =  - speed, curr rotation > target rotation
+	//False  =  + speed, curr rotation < target rotation
+	bool SwingDirection;
+	bool HasReturned;
+
+	//Attacking
+	if (!m_ArmSwing)
+	{
+		m_ArmRotation = EntityRotation(dt, ARM_SWING_SPEED, ARM_SWING_ROT_AMOUNT, m_ArmRotation);
+	}
+	//Sword returning
+	else
+	{
+		m_ArmRotation = EntityRotation(dt, ARM_SWING_SPEED, ARM_SWING_INIT_AMOUNT, m_ArmRotation);
+	}
+
+	if (m_ArmRotation <= ARM_SWING_ROT_AMOUNT)
+	{
+		m_ArmSwing = true;
+	}
+
+	else if (m_ArmRotation >= ARM_SWING_INIT_AMOUNT)
+	{
+		m_LastAttackTimer = 0.0f;
+		TakingAction = false;
+		m_ArmSwing = false;
+	}
 }
 
 float CBoss::GetChildRotation(int ChildID)
@@ -208,6 +257,7 @@ float CBoss::GetChildRotation(int ChildID)
 	switch (ChildID)
 	{
 	case 1:
+		return this->m_ArmRotation;
 		break;
 	case 2:
 		break;

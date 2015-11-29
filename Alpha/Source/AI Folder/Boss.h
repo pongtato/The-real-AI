@@ -17,6 +17,16 @@ public:
 	static const int DEFAULT_SKILL_DAMAGE = 20;
 	static const int DEFAULT_DAMAGE = 10;
 
+	const static int BOSS_LOOK_OFFSET = 90;
+	const float ARM_SWING_SPEED = 1000.f;
+	const float ARM_SWING_ROT_AMOUNT = -90.f;
+	const float ARM_SWING_INIT_AMOUNT = 0.f;
+	const float m_AttackDelay = 1.0f;
+
+	bool m_ArmSwing;
+
+	float m_ArmRotation;
+
 	enum STATES
 	{
 		MOVE,

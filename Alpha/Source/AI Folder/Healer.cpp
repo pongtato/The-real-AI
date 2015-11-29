@@ -6,7 +6,6 @@ CHealer::CHealer()
 	IsTarget = false;
 	ClassName = "Healer: ";
 	m_MoveSpeed = 30.f;
-	m_AttackRange = 45.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = HEALER;
 
@@ -17,6 +16,16 @@ CHealer::CHealer()
 		Probability(0, 100),
 		0.1f,
 		Probability(0, 100));
+
+	m_RodRotation = 0.0f;
+	m_RodSwing = false;
+
+	//Attack Init
+	m_AttackRange = 45.f;
+	m_AttackSpeed = 1.0f;
+	m_LastAttackTimer = m_AttackDelay;
+
+	TakingAction = false;
 }
 
 
@@ -56,6 +65,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	DangerPosition = newDangerPosition;
 	//Face the targets position
 	FaceTarget();
+	TickTimer(dt);
 
 	//Go through list for lowest hp
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
@@ -87,8 +97,20 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	case ATTACK:
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
-			//Do attack 
-			UpdateAttacking(dt);
+			TakingAction = true;
+		}
+
+		if (TakingAction)
+		{
+			if (m_LastAttackTimer >= m_AttackDelay)
+			{
+				//Do attack 
+				UpdateAttacking(dt);
+			}
+			else
+			{
+				TakingAction = false;
+			}
 		}
 		else
 		{
@@ -114,10 +136,8 @@ void CHealer::UpdateAttacking(double dt)
 {
 	//True  =  - speed, curr rotation > target rotation
 	//False  =  + speed, curr rotation < target rotation
-	bool SwingDirection = (m_RodRotation > ROD_SWING_ROT_AMOUNT ? true : false);
-	bool HasReturned = (m_RodRotation > 0 ? true : false);
-
-	TakingAction = true;
+	bool SwingDirection;
+	bool HasReturned;
 
 	//Attacking
 	if (!m_RodSwing)
@@ -130,48 +150,16 @@ void CHealer::UpdateAttacking(double dt)
 		m_RodRotation = EntityRotation(dt, ROD_SWING_SPEED, ROD_SWING_INIT_AMOUNT, m_RodRotation);
 	}
 
-	//Attacking trigger
-	if (SwingDirection)
+	if (m_RodRotation >= ROD_SWING_ROT_AMOUNT)
 	{
-		if (m_RodRotation < ROD_SWING_ROT_AMOUNT)
-		{
-			//Trigger sword return
-			m_RodRotation = ROD_SWING_ROT_AMOUNT;
-			m_RodSwing = true;
-		}
-	}
-	else
-	{
-		if (m_RodRotation > ROD_SWING_ROT_AMOUNT)
-		{
-			//Trigger sword return
-			m_RodRotation = ROD_SWING_ROT_AMOUNT;
-			m_RodSwing = true;
-		}
+		m_RodSwing = true;
 	}
 
-	//Return trigger
-	if (HasReturned)
+	else if (m_RodRotation <= ROD_SWING_INIT_AMOUNT)
 	{
-		if (m_RodRotation < ROD_SWING_ROT_AMOUNT)
-		{
-			//Trigger attack cooldown
-			m_RodRotation = ROD_SWING_INIT_AMOUNT;
-			m_LastAttackTimer = 0.0f;
-			m_RodSwing = false;
-			TakingAction = false;
-		}
-	}
-	else
-	{
-		if (m_RodRotation > ROD_SWING_ROT_AMOUNT)
-		{
-			//Trigger attack cooldown
-			m_RodRotation = ROD_SWING_INIT_AMOUNT;
-			m_LastAttackTimer = 0.0f;
-			m_RodSwing = false;
-			TakingAction = false;
-		}
+		m_LastAttackTimer = 0.0f;
+		TakingAction = false;
+		m_RodSwing = false;
 	}
 }
 
@@ -180,6 +168,7 @@ float CHealer::GetChildRotation(int ChildID)
 	switch (ChildID)
 	{
 	case 1:
+		return this->m_RodRotation;
 		break;
 	case 2:
 		break;

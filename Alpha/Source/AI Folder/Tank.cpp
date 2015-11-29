@@ -126,9 +126,6 @@ float CTank::GetShieldRotation(void)
 void CTank::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
-
-	cout << m_LastAttackTimer << endl;
-	cout << GetState() << endl;
 }
 
 void CTank::UpdateAttacking(double dt)

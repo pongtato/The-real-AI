@@ -378,8 +378,6 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setPosition(theTank->GetPosition());
 	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setRotation(theTank->GetRotation(), 0, 1, 0);
 
-#define CHILD_1 1
-
 	string IDPlus = theTank->GetID();
 	IDPlus += SWORD;
 	IDPlus += theTank->GetID().back();
@@ -387,14 +385,23 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_1), 0, 0, 1);
 
-#define CHILD_2 2
+	/*IDPlus = theTank->GetID();
+	IDPlus += SHIELD;
+	IDPlus += theTank->GetID().back();*/
+
+	IDPlus = theTank->GetID();
+	IDPlus += SHIELD_PIVOT;
+	IDPlus += theTank->GetID().back();
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 0));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_1), 0, 1, 0);
 
 	IDPlus = theTank->GetID();
 	IDPlus += SHIELD;
 	IDPlus += theTank->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_2), 0, 1, 0);
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(90, 0, 1, 0);
 }
 
 void SceneManagerCMPlay::MAGE_NODE(CEntity* theMage)
@@ -410,6 +417,7 @@ void SceneManagerCMPlay::MAGE_NODE(CEntity* theMage)
 	IDPlus += theMage->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theMage->GetChildRotation(CHILD_1), 0, 0, 1);
 }
 void SceneManagerCMPlay::HEALER_NODE(CEntity* theHealer)
 {
@@ -424,6 +432,7 @@ void SceneManagerCMPlay::HEALER_NODE(CEntity* theHealer)
 	IDPlus += theHealer->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theHealer->GetChildRotation(CHILD_1), 0, 0, 1);
 }
 void SceneManagerCMPlay::BOSS_NODE(CEntity* theBoss)
 {
@@ -438,12 +447,15 @@ void SceneManagerCMPlay::BOSS_NODE(CEntity* theBoss)
 	IDPlus += theBoss->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theBoss->GetChildRotation(CHILD_1), 0, 0, 1);
+
 
 	IDPlus = theBoss->GetID();
 	IDPlus += LARM;
 	IDPlus += theBoss->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theBoss->GetChildRotation(CHILD_2), 0, 0, 1);
 }
 
 void SceneManagerCMPlay::FSMApplication()
@@ -497,10 +509,26 @@ void SceneManagerCMPlay::AddTANK(string ID)
 	newNode->SetGameObject(newModel);
 	sceneGraph->AddChildToChildNode(ID, newNode);
 
+	//drawMesh = resourceManager.retrieveMesh("WARRIOR_SHIELD_OBJ");
+	//drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
+	newModel = new GameObject3D;
+	newNode = new SceneNode;
+
+	IDPlus = ID;
+	IDPlus += SHIELD_PIVOT;
+	IDPlus += ID.back();
+
+	newModel->setName(IDPlus);
+	//newModel->setMesh(drawMesh);
+	newNode->SetGameObject(newModel);
+	sceneGraph->AddChildToChildNode(ID, newNode);
+
 	drawMesh = resourceManager.retrieveMesh("WARRIOR_SHIELD_OBJ");
 	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
+
+	string theCopy = IDPlus;
 
 	IDPlus = ID;
 	IDPlus += SHIELD;
@@ -509,7 +537,7 @@ void SceneManagerCMPlay::AddTANK(string ID)
 	newModel->setName(IDPlus);
 	newModel->setMesh(drawMesh);
 	newNode->SetGameObject(newModel);
-	sceneGraph->AddChildToChildNode(ID, newNode);
+	sceneGraph->AddChildToChildNode(theCopy, newNode);
 
 	TANK_COUNT++;
 }

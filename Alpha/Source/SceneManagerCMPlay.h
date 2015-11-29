@@ -11,6 +11,7 @@
 #define WARRIOR "WARRIOR"
 #define SWORD	"_SWORD_"
 #define SHIELD	"_SHIELD_"
+#define SHIELD_PIVOT "_SHIELD_PIVOT_"
 #define MAGE "MAGE"
 #define ROD	"_ROD_"
 #define HEALER "HEALER"
@@ -18,6 +19,9 @@
 #define BOSS "BOSS"
 #define LARM "_LARM_"
 #define RARM "_RARM_"
+
+#define CHILD_1 1
+#define CHILD_2 2
 
 class SceneManagerCMPlay : public SceneManagerGameplay
 {
