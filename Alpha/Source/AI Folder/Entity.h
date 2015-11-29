@@ -24,10 +24,11 @@ protected:
 	float m_RunSpeed;		// Retreating SPD of this AI
 	float m_Damage;			// ATK stat of this AI
 	float m_AttackSpeed;	// AS stat of this AI
-	float m_LastAttackTimer;//	Time of last known attack
+	float m_LastAttackTimer;// Time of last known attack
 	float m_Cooldown;		// Skill cooldown of this AI
 	float m_AttackRange;	// Attack Range of this AI
 	float m_DangerZone;		// Caution zone of this AI
+	float m_InitialRotation;// Where to reset the child node to etc Sword starting point
 
 	bool IsTarget;
 
@@ -48,9 +49,12 @@ public:
 	void SetIsTarget(bool TF);
 	void SetDangerZone(float DZ);
 	void FaceTarget(void);
+	void SetRotation(float Rotate);
 	void SetCurrentHealthPoint(float);
-	float GetCurrentHealthPoint(void);
 	void SetID(string newID, string newTYPE);
+	bool TakingAction;
+	float EntityRotation(double dt, float speed, float MaxRotate, float InputRotation);
+	float GetCurrentHealthPoint(void);
 	float GetHpPercent(void);
 	float GetAttackRange(void);
 	float GetRotation(void);
@@ -77,7 +81,7 @@ public:
 	void Retreat(Vector3 TargetDestination, double dt);
 
 	void Attack(void);
-	virtual void UpdateAttacking(void);
+	virtual void UpdateAttacking(double dt);
 
 	virtual void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	virtual void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
@@ -85,6 +89,10 @@ public:
 	virtual int Probability(int lowerLimit, int upperLimit);
 
 	virtual void RandomSpawn(int lowerLimit, int upperLimit);
+
+	virtual float GetChildRotation(int ChildID) = 0;
+
+	virtual void TickTimer(double dt) = 0;
 
 	virtual string GetState(void);
 };

@@ -6,7 +6,7 @@ CMage::CMage()
 	IsTarget = false;
 	ClassName = "Mage: ";
 	m_MoveSpeed = 20.f;
-	m_AttackRange = 45.f;
+	
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = MAGE;
 	m_HP = 100;
@@ -16,6 +16,17 @@ CMage::CMage()
 		Probability(0, 100),
 		0.1f,
 		Probability(0, 100));
+
+	m_StaffRotation = 0.0f;
+
+	m_StaffSwing = false;
+
+	//Attack Init
+	m_AttackRange = 45.f;
+	m_AttackSpeed = 1.0f;
+	m_LastAttackTimer = m_AttackDelay;
+
+	TakingAction = false;
 }
 
 
@@ -51,7 +62,7 @@ void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
-			UpdateAttacking();
+			UpdateAttacking(dt);
 		}
 		else
 		{
@@ -72,7 +83,85 @@ void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 		break;
 	}
 }
-void CMage::UpdateAttacking(void)
+void CMage::UpdateAttacking(double dt)
 {
+	//True  =  - speed, curr rotation > target rotation
+	//False  =  + speed, curr rotation < target rotation
+	bool SwingDirection = (m_StaffRotation > STAFF_SWING_ROT_AMOUNT ? true : false);
+	bool HasReturned = (m_StaffRotation > 0 ? true : false);
 
+	TakingAction = true;
+
+	//Attacking
+	if (!m_StaffSwing)
+	{
+		m_StaffRotation = EntityRotation(dt, STAFF_SWING_SPEED, STAFF_SWING_ROT_AMOUNT, m_StaffRotation);
+	}
+	//Sword returning
+	else
+	{
+		m_StaffRotation = EntityRotation(dt, STAFF_SWING_SPEED, STAFF_SWING_INIT_AMOUNT, m_StaffRotation);
+	}
+
+	//Attacking trigger
+	if (SwingDirection)
+	{
+		if (m_StaffRotation < STAFF_SWING_ROT_AMOUNT)
+		{
+			//Trigger sword return
+			m_StaffRotation = STAFF_SWING_ROT_AMOUNT;
+			m_StaffSwing = true;
+		}
+	}
+	else
+	{
+		if (m_StaffRotation > STAFF_SWING_ROT_AMOUNT)
+		{
+			//Trigger sword return
+			m_StaffRotation = STAFF_SWING_ROT_AMOUNT;
+			m_StaffSwing = true;
+		}
+	}
+
+	//Return trigger
+	if (HasReturned)
+	{
+		if (m_StaffRotation < STAFF_SWING_ROT_AMOUNT)
+		{
+			//Trigger attack cooldown
+			m_StaffRotation = STAFF_SWING_INIT_AMOUNT;
+			m_LastAttackTimer = 0.0f;
+			m_StaffSwing = false;
+			TakingAction = false;
+		}
+	}
+	else
+	{
+		if (m_StaffRotation > STAFF_SWING_ROT_AMOUNT)
+		{
+			//Trigger attack cooldown
+			m_StaffRotation = STAFF_SWING_INIT_AMOUNT;
+			m_LastAttackTimer = 0.0f;
+			m_StaffSwing = false;
+			TakingAction = false;
+		}
+	}
+}
+
+float CMage::GetChildRotation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:	
+		break;
+	case 2:
+		break;
+	}
+
+	return 0;
+}
+
+void CMage::TickTimer(double dt)
+{
+	m_LastAttackTimer += m_AttackSpeed * dt;
 }

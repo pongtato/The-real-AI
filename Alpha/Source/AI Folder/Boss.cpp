@@ -98,7 +98,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
-			UpdateAttacking(ListOfEnemies[CurrentTarget]);
+			UpdateAttacking(ListOfEnemies[CurrentTarget],dt);
 		}
 		else
 		{
@@ -179,7 +179,7 @@ string CBoss::GetState(void)
 	}
 }
 
-void CBoss::UpdateAttacking(CEntity* target)
+void CBoss::UpdateAttacking(CEntity* target, double dt)
 {
 	// Damage the target when boss is able to attack
 	if (m_LastAttackTimer >= m_AttackSpeed)
@@ -201,4 +201,17 @@ void CBoss::UpdateAttacking(CEntity* target)
 		cout << "Boss is channelling its skill!!!" << endl;
 #endif
 	}
+}
+
+float CBoss::GetChildRotation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		break;
+	case 2:
+		break;
+	}
+
+	return 0;
 }

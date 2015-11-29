@@ -368,7 +368,6 @@ void SceneManagerCMPlay::InitSceneGraph()
 			AddBOSS(ListOfCharacters[i]->GetID());
 		}
 	}
-
 }
 
 void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
@@ -379,17 +378,23 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setPosition(theTank->GetPosition());
 	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setRotation(theTank->GetRotation(), 0, 1, 0);
 
+#define CHILD_1 1
+
 	string IDPlus = theTank->GetID();
 	IDPlus += SWORD;
 	IDPlus += theTank->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_1), 0, 0, 1);
+
+#define CHILD_2 2
 
 	IDPlus = theTank->GetID();
 	IDPlus += SHIELD;
 	IDPlus += theTank->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_2), 0, 1, 0);
 }
 
 void SceneManagerCMPlay::MAGE_NODE(CEntity* theMage)

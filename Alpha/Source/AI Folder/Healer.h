@@ -10,6 +10,16 @@ class CHealer : public CEntity
 		HEAL,
 		RETREAT
 	};
+private:
+	const static int HEALER_LOOK_OFFSET = 90;
+	const float ROD_SWING_SPEED = 1000.f;
+	const float ROD_SWING_ROT_AMOUNT = 90.f;
+	const float ROD_SWING_INIT_AMOUNT = 0.f;
+	const float m_AttackDelay = 1.0f;
+
+	bool m_RodSwing;
+	
+	float m_RodRotation;
 
 public:
 	CHealer();
@@ -17,6 +27,8 @@ public:
 
 	string GetState(void);
 	void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
-	void UpdateAttacking(void);
+	void UpdateAttacking(double dt);
+	float GetChildRotation(int ChildID);
+	void TickTimer(double dt);
 };
 

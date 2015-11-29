@@ -92,6 +92,19 @@ void CEntity::FaceTarget(void)
 	this->m_Rotation = Math::RadianToDegree(atan2(Direction.x, Direction.z)) + MAYA_MODEL_OFFSET;
 }
 
+void CEntity::SetRotation(float Rotate)
+{
+	this->m_Rotation = Rotate;
+}
+
+float CEntity::EntityRotation(double dt, float speed, float MaxRotate, float InputRotation)
+{
+	int RotationDirection = (InputRotation > MaxRotate ? 1 : -1);
+	{
+		return InputRotation - speed * (float)dt * RotationDirection;
+	}
+}
+
 void CEntity::Move(Vector3 TargetDestination, double dt)
 {
 	Vector3 Direction;
@@ -195,7 +208,7 @@ void CEntity::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	}
 }
 
-void CEntity::UpdateAttacking(void)
+void CEntity::UpdateAttacking(double dt)
 {
 
 }

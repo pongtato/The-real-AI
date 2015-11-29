@@ -6,7 +6,6 @@ CTank::CTank()
 	IsTarget = false;
 	ClassName = "Tank: ";
 	m_MoveSpeed = 20.f;
-	m_AttackRange = 15.0f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = TANK;
 
@@ -18,6 +17,19 @@ CTank::CTank()
 		Probability(0, 100),
 		0.1f,
 		Probability(0, 100));
+
+	m_SwordRotation = 0.0f;
+	m_ShieldRotation = 0.0f;
+
+	m_SwordSwing = false;
+	m_ShieldSwing = false;
+
+	//Attack Init
+	m_AttackRange = 15.0f;
+	m_AttackSpeed = 1.0f;
+	m_LastAttackTimer = m_AttackDelay;
+
+	TakingAction = false;
 }
 
 
@@ -31,6 +43,7 @@ void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 	DangerPosition = newDangerPosition;
 	//Face the targets position
 	FaceTarget();
+	TickTimer(dt);
 
 	if (IsTarget)
 	{
@@ -52,8 +65,20 @@ void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 	case ATTACK:
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
-			//Do attack 
-			UpdateAttacking();
+			TakingAction = true;
+		}
+
+		if (TakingAction)
+		{
+			if (m_LastAttackTimer >= m_AttackDelay)
+			{
+				//Do attack 
+				UpdateAttacking(dt);
+			}
+			else
+			{
+				TakingAction = false;
+			}
 		}
 		else
 		{
@@ -74,7 +99,65 @@ void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 		break;
 	}
 }
-void CTank::UpdateAttacking(void)
-{
 
+float CTank::GetChildRotation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		return GetSwordRotation();
+		break;
+	case 2:
+		return GetShieldRotation();
+		break;
+	}
+}
+
+float CTank::GetSwordRotation(void)
+{
+	return this->m_SwordRotation;
+}
+
+float CTank::GetShieldRotation(void)
+{
+	return this->m_ShieldRotation;
+}
+
+void CTank::TickTimer(double dt)
+{
+	m_LastAttackTimer += m_AttackSpeed * dt;
+
+	cout << m_LastAttackTimer << endl;
+	cout << GetState() << endl;
+}
+
+void CTank::UpdateAttacking(double dt)
+{
+	//True  =  - speed, curr rotation > target rotation
+	//False  =  + speed, curr rotation < target rotation
+	bool SwingDirection;
+	bool HasReturned;
+
+	//Attacking
+	if (!m_SwordSwing)
+	{
+		m_SwordRotation = EntityRotation(dt, SWORD_SWING_SPEED, SWORD_SWING_ROT_AMOUNT, m_SwordRotation);
+	}
+	//Sword returning
+	else
+	{
+		m_SwordRotation = EntityRotation(dt, SWORD_SWING_SPEED, SWORD_SWING_INIT_AMOUNT, m_SwordRotation);
+	}
+
+	if (m_SwordRotation >= SWORD_SWING_ROT_AMOUNT)
+	{
+		m_SwordSwing = true;
+	}
+
+	else if (m_SwordRotation <= SWORD_SWING_INIT_AMOUNT)
+	{
+		m_LastAttackTimer = 0.0f;
+		TakingAction = false;
+		m_SwordSwing = false;
+	}
 }

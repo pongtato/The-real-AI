@@ -88,7 +88,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
-			UpdateAttacking();
+			UpdateAttacking(dt);
 		}
 		else
 		{
@@ -109,7 +109,86 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		break;
 	}
 }
-void CHealer::UpdateAttacking(void)
-{
 
+void CHealer::UpdateAttacking(double dt)
+{
+	//True  =  - speed, curr rotation > target rotation
+	//False  =  + speed, curr rotation < target rotation
+	bool SwingDirection = (m_RodRotation > ROD_SWING_ROT_AMOUNT ? true : false);
+	bool HasReturned = (m_RodRotation > 0 ? true : false);
+
+	TakingAction = true;
+
+	//Attacking
+	if (!m_RodSwing)
+	{
+		m_RodRotation = EntityRotation(dt, ROD_SWING_SPEED, ROD_SWING_ROT_AMOUNT, m_RodRotation);
+	}
+	//Sword returning
+	else
+	{
+		m_RodRotation = EntityRotation(dt, ROD_SWING_SPEED, ROD_SWING_INIT_AMOUNT, m_RodRotation);
+	}
+
+	//Attacking trigger
+	if (SwingDirection)
+	{
+		if (m_RodRotation < ROD_SWING_ROT_AMOUNT)
+		{
+			//Trigger sword return
+			m_RodRotation = ROD_SWING_ROT_AMOUNT;
+			m_RodSwing = true;
+		}
+	}
+	else
+	{
+		if (m_RodRotation > ROD_SWING_ROT_AMOUNT)
+		{
+			//Trigger sword return
+			m_RodRotation = ROD_SWING_ROT_AMOUNT;
+			m_RodSwing = true;
+		}
+	}
+
+	//Return trigger
+	if (HasReturned)
+	{
+		if (m_RodRotation < ROD_SWING_ROT_AMOUNT)
+		{
+			//Trigger attack cooldown
+			m_RodRotation = ROD_SWING_INIT_AMOUNT;
+			m_LastAttackTimer = 0.0f;
+			m_RodSwing = false;
+			TakingAction = false;
+		}
+	}
+	else
+	{
+		if (m_RodRotation > ROD_SWING_ROT_AMOUNT)
+		{
+			//Trigger attack cooldown
+			m_RodRotation = ROD_SWING_INIT_AMOUNT;
+			m_LastAttackTimer = 0.0f;
+			m_RodSwing = false;
+			TakingAction = false;
+		}
+	}
+}
+
+float CHealer::GetChildRotation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		break;
+	case 2:
+		break;
+	}
+
+	return 0;
+}
+
+void CHealer::TickTimer(double dt)
+{
+	m_LastAttackTimer += m_AttackSpeed * dt;
 }
