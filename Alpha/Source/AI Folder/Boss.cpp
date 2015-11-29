@@ -21,6 +21,12 @@ CBoss::CBoss()
 		Probability(0, 100));
 
 	Position = InitialPos;
+
+	m_IsCastingSkill = false;
+	m_DamageThreshold = 100.f;
+	m_TotalDamageTaken = 0.f;
+	m_CastingTimer = 0.f;
+	m_Damage = DEFAULT_DAMAGE;
 }
 
 
@@ -30,7 +36,15 @@ CBoss::~CBoss()
 
 void CBoss::TickTimer(double dt)
 {
-	TargetChangeTimer += 1.f;
+	TargetChangeTimer += (float)dt;
+	if (m_LastAttackTimer <= m_AttackSpeed)
+		m_LastAttackTimer += (float)dt;
+
+	if (m_Cooldown > 0)
+		m_Cooldown -= (float)dt;
+
+	if (m_IsCastingSkill)
+		m_CastingTimer += (float)dt;
 }
 
 int CBoss::GetCurrentTarget(void)
@@ -84,7 +98,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			//Do attack 
-			UpdateAttacking();
+			UpdateAttacking(ListOfEnemies[CurrentTarget]);
 		}
 		else
 		{
@@ -108,6 +122,27 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		}
 		else
 		{
+			state = MOVE;
+		}
+		break;
+	case CAST_SKILL:
+		if (m_CastingTimer > DEFAULT_CASTING_TIME)
+		{
+			m_IsCastingSkill = false;
+			m_CastingTimer = 0;
+			m_TotalDamageTaken = 0; // Reset the damage taken threshold
+			// Damage every enemy around the Boss within a radius
+			for (unsigned short i = 0; i < ListOfEnemies.size(); ++i)
+			{
+				if ((ListOfEnemies[i]->GetPosition() - Position).Length() < DEFAULT_SKILL_RANGE)
+				{
+					ListOfEnemies[i]->SetCurrentHealthPoint(ListOfEnemies[i]->GetCurrentHealthPoint() - DEFAULT_SKILL_DAMAGE);
+				}
+			}
+
+#if _DEBUG
+			cout << "Boss slams the ground for AoE Damage!" << endl;
+#endif
 			state = MOVE;
 		}
 		break;
@@ -144,7 +179,26 @@ string CBoss::GetState(void)
 	}
 }
 
-void CBoss::UpdateAttacking(void)
+void CBoss::UpdateAttacking(CEntity* target)
 {
+	// Damage the target when boss is able to attack
+	if (m_LastAttackTimer >= m_AttackSpeed)
+	{
+		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+		m_LastAttackTimer = 0;
 
+#if _DEBUG
+		cout << "Boss damages the enemy for " << m_Damage << endl;
+#endif
+	}
+
+	if (m_TotalDamageTaken >= m_DamageThreshold && m_Cooldown <= 0 && !m_IsCastingSkill)
+	{
+		m_IsCastingSkill = true;	// Set the boolean for casting to true
+		state = CAST_SKILL;	// Change it's state to casting of skill
+		m_Cooldown = DEFAULT_COOLDOWN;	// Put the skill on cooldown
+#if _DEBUG
+		cout << "Boss is channelling its skill!!!" << endl;
+#endif
+	}
 }

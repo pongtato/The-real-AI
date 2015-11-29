@@ -16,17 +16,19 @@ class CEntity
 {
 protected:
 	int state;
-	int m_HP;
-	int m_Curent_HP;
+	int m_HP;				// Max HP of this AI
+	int m_Curent_HP;		// Current HP of this AI
 	int m_Priority;
-	float m_Rotation;
-	float m_MoveSpeed;
-	float m_RunSpeed;
-	float m_Damage;
-	float m_AttackSpeed;
-	float m_Cooldown;
-	float m_AttackRange;
-	float m_DangerZone;
+	float m_Rotation;		// Rotation value of this AI
+	float m_MoveSpeed;		// SPD of this AI
+	float m_RunSpeed;		// Retreating SPD of this AI
+	float m_Damage;			// ATK stat of this AI
+	float m_AttackSpeed;	// AS stat of this AI
+	float m_LastAttackTimer;//	Time of last known attack
+	float m_Cooldown;		// Skill cooldown of this AI
+	float m_AttackRange;	// Attack Range of this AI
+	float m_DangerZone;		// Caution zone of this AI
+
 	bool IsTarget;
 
 	Vector3 Position;
@@ -46,8 +48,9 @@ public:
 	void SetIsTarget(bool TF);
 	void SetDangerZone(float DZ);
 	void FaceTarget(void);
+	void SetCurrentHealthPoint(float);
+	float GetCurrentHealthPoint(void);
 	void SetID(string newID, string newTYPE);
-
 	float GetHpPercent(void);
 	float GetAttackRange(void);
 	float GetRotation(void);

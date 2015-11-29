@@ -7,6 +7,7 @@ CEntity::CEntity()
 	state = MOVE;
 	IsTarget = false;
 	m_Rotation = 0.0f;
+	m_LastAttackTimer = 0.f;
 }
 
 
@@ -221,4 +222,14 @@ string CEntity::GetState(void)
 		return DummyText;
 		break;
 	}
+}
+
+void CEntity::SetCurrentHealthPoint(float hp)
+{
+	this->m_Curent_HP = hp;
+}
+
+float CEntity::GetCurrentHealthPoint(void)
+{
+	return m_Curent_HP;
 }
