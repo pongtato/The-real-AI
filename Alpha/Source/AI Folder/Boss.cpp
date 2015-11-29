@@ -20,7 +20,7 @@ CBoss::CBoss()
 		Probability(0, 100));
 
 	Position = InitialPos;
-
+	m_HP = 2000;
 	m_IsCastingSkill = false;
 	m_DamageThreshold = 100.f;
 	m_TotalDamageTaken = 0.f;

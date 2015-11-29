@@ -70,7 +70,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	//Go through list for lowest hp
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetHpPercent() > lowestHP)
+		if (ListOfCharacters[i]->GetHpPercent() > lowestHP && ListOfCharacters[i]->GetTYPE() != "BOSS")
 		{
 			lowestHP = ListOfCharacters[i]->GetHpPercent();
 			TargetPosition = ListOfCharacters[i]->GetPosition();

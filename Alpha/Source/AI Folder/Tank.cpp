@@ -8,7 +8,8 @@ CTank::CTank()
 	m_MoveSpeed = 20.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = TANK;
-
+	m_AttackSpeed = 1.0f;
+	m_Damage = 10.f;
 	m_HP = 100;
 	//Testing
 	m_Curent_HP = 50;

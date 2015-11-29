@@ -16,7 +16,7 @@ private:
 public:
 	CMage();
 	~CMage();
-	void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
+	void RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	void UpdateAttacking(double dt);
 	float GetChildRotation(int ChildID);
 	void TickTimer(double dt);
