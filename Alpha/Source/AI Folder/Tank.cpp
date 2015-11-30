@@ -61,18 +61,18 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
-		//Taunt uanvailable or no boss to taunt
-		else if (m_Cooldown < m_SkillDelay || !TauntCheck(ListOfCharacters))
-		{
-			state = ATTACK;
-		}
-		else
+		else if (m_Cooldown >= m_SkillDelay)
 		{
 			state = TAUNT;
+		}
+		//Taunt uanvailable
+		else
+		{
+			state = ATTACK;
 		}
 		break;
 	case ATTACK:
@@ -91,11 +91,8 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			else
 			{
 				TakingAction = false;
+				state = MOVE;
 			}
-		}
-		else
-		{
-			state = MOVE;
 		}
 		break;
 	case TAUNT:
@@ -114,11 +111,8 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			else
 			{
 				TakingAction = false;
+				state = ATTACK;
 			}
-		}
-		else
-		{
-			state = MOVE;
 		}
 		break;
 	case RETREAT:
