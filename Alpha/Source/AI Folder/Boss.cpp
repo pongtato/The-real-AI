@@ -245,16 +245,16 @@ string CBoss::GetState(void)
 
 void CBoss::UpdateAttacking(CEntity* target, double dt)
 {
-	// Damage the target when boss is able to attack
-	if (m_LastAttackTimer >= m_AttackSpeed)
-	{
-		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
-		m_LastAttackTimer = 0;
-
-#if _DEBUG
-		cout << "Boss damages the enemy for " << m_Damage << endl;
-#endif
-	}
+//	// Damage the target when boss is able to attack
+//	if (m_LastAttackTimer >= m_AttackSpeed)
+//	{
+//		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+//		m_LastAttackTimer = 0;
+//
+//#if _DEBUG
+//		cout << "Boss damages the enemy for " << m_Damage << endl;
+//#endif
+//	}
 
 	if (m_TotalDamageTaken >= m_DamageThreshold && m_Cooldown <= 0 && !m_IsCastingSkill)
 	{
@@ -266,9 +266,6 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 #endif
 	}
 
-	//True  =  - speed, curr rotation > target rotation
-	//False  =  + speed, curr rotation < target rotation
-	bool SwingDirection;
 	bool HasReturned;
 
 	//Attacking
@@ -286,9 +283,15 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 	{
 		m_ArmSwing = true;
 	}
-
+	// Damage the target when boss is able to attack
 	else if (m_ArmRotation >= ARM_SWING_INIT_AMOUNT)
 	{
+		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+
+#if _DEBUG
+		cout << "Boss damages the enemy for " << m_Damage << endl;
+#endif
+
 		m_LastAttackTimer = 0.0f;
 		TakingAction = false;
 		m_ArmSwing = false;

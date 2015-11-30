@@ -460,7 +460,7 @@ void SceneManagerCMPlay::BOSS_NODE(CEntity* theBoss)
 	IDPlus += theBoss->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theBoss->GetChildRotation(CHILD_2), 0, 0, 1);
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theBoss->GetChildRotation(CHILD_1), 0, 0, 1);
 }
 
 void SceneManagerCMPlay::FSMApplication()
