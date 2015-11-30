@@ -11,7 +11,7 @@ CBoss::CBoss()
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = BOSS;
 
-	ResetRange = 100.f;
+	ResetRange = 10000.f;
 	CurrentTarget = 0;
 
 	InitialPos.Set(
