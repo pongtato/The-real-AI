@@ -8,6 +8,7 @@ CHealer::CHealer()
 	m_MoveSpeed = 30.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = HEALER;
+	targetID = HEALER;
 
 	m_HP = 100;
 	m_Curent_HP = m_HP;
@@ -26,6 +27,8 @@ CHealer::CHealer()
 	m_LastAttackTimer = m_AttackDelay;
 
 	TakingAction = false;
+
+	m_Priority = 1;
 }
 
 
@@ -177,7 +180,30 @@ float CHealer::GetChildRotation(int ChildID)
 	return 0;
 }
 
+float CHealer::GetChildTranslation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		return 0;
+		break;
+	case 2:
+
+		break;
+	}
+}
+
 void CHealer::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
+}
+
+void CHealer::CustomStates(double dt)
+{
+
+}
+
+float CHealer::TargetOverRide(void)
+{
+	return 0;
 }

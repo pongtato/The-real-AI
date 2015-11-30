@@ -144,7 +144,7 @@ void SceneManagerCMPlay::Update(double dt)
 	{
 		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
 		{
-			ListOfCharacters[i]->RunFSM(dt, Boss->GetPosition(), Boss->GetPosition());
+			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
 		}
 		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
 		{
@@ -382,7 +382,12 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	IDPlus += SWORD;
 	IDPlus += theTank->GetID().back();
 
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	//sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+
+	Vector3 Temp;
+	Temp.Set(0, theTank->GetChildTranslation(CHILD_1), -5);
+
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Temp);
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_1), 0, 0, 1);
 
 	/*IDPlus = theTank->GetID();

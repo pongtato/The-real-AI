@@ -18,7 +18,10 @@ public:
 	~CMage();
 	void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	void UpdateAttacking(double dt);
+	void CustomStates(double dt);
 	float GetChildRotation(int ChildID);
+	float GetChildTranslation(int ChildID);
+	float TargetOverRide(void);
 	void TickTimer(double dt);
 
 };

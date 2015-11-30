@@ -8,6 +8,7 @@ CTank::CTank()
 	m_MoveSpeed = 20.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = TANK;
+	targetID = TANK;
 
 	m_HP = 100;
 	//Testing
@@ -30,6 +31,11 @@ CTank::CTank()
 	m_LastAttackTimer = m_AttackDelay;
 
 	TakingAction = false;
+	
+	m_SwordTranslate = 0.0f;
+	m_Cooldown = m_SkillDelay;
+
+	m_Priority = 1;
 }
 
 
@@ -37,7 +43,7 @@ CTank::~CTank()
 {
 }
 
-void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition)
+void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
 	TargetPosition = newTargetPosition;
 	DangerPosition = newDangerPosition;
@@ -47,7 +53,7 @@ void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 
 	if (IsTarget)
 	{
-		state = RETREAT;
+		//state = RETREAT;
 	}
 
 	switch (state)
@@ -57,9 +63,14 @@ void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 		{
 			Move(TargetPosition, dt);
 		}
-		else
+		//Taunt uanvailable or no boss to taunt
+		else if (m_Cooldown < m_SkillDelay || !TauntCheck(ListOfCharacters))
 		{
 			state = ATTACK;
+		}
+		else
+		{
+			state = TAUNT;
 		}
 		break;
 	case ATTACK:
@@ -74,6 +85,29 @@ void CTank::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPositi
 			{
 				//Do attack 
 				UpdateAttacking(dt);
+			}
+			else
+			{
+				TakingAction = false;
+			}
+		}
+		else
+		{
+			state = MOVE;
+		}
+		break;
+	case TAUNT:
+		if (m_AttackRange >= (TargetPosition - Position).Length())
+		{
+			TakingAction = true;
+		}
+
+		if (TakingAction)
+		{
+			if (m_Cooldown >= m_SkillDelay)
+			{
+				//Do taunt
+				CustomStates(dt);
 			}
 			else
 			{
@@ -113,6 +147,19 @@ float CTank::GetChildRotation(int ChildID)
 	}
 }
 
+float CTank::GetChildTranslation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		return this->m_SwordTranslate;
+		break;
+	case 2:
+	
+		break;
+	}
+}
+
 float CTank::GetSwordRotation(void)
 {
 	return this->m_SwordRotation;
@@ -126,13 +173,11 @@ float CTank::GetShieldRotation(void)
 void CTank::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
+	m_Cooldown += dt;
 }
 
 void CTank::UpdateAttacking(double dt)
 {
-	//True  =  - speed, curr rotation > target rotation
-	//False  =  + speed, curr rotation < target rotation
-	bool SwingDirection;
 	bool HasReturned;
 
 	//Attacking
@@ -157,4 +202,61 @@ void CTank::UpdateAttacking(double dt)
 		TakingAction = false;
 		m_SwordSwing = false;
 	}
+}
+
+void CTank::CustomStates(double dt)
+{
+	UpdateTaunt(dt);
+}
+
+void CTank::UpdateTaunt(double dt)
+{
+	bool HasReturned;
+	m_Priority = 2;
+
+	//Attacking
+	if (!m_SwordSwing)
+	{
+		m_SwordTranslate = EntityTranslation(dt, (SWORD_SWING_SPEED * 0.05f), SWORD_TRANSLATE_AMOUNT, m_SwordTranslate);
+	}
+	//Sword returning
+	else
+	{
+		m_SwordTranslate = EntityTranslation(dt, (SWORD_SWING_SPEED * 0.05f), SWORD_TRANSLATE_INIT_AMOUNT, m_SwordTranslate);
+	}
+
+	if (m_SwordTranslate >= SWORD_TRANSLATE_AMOUNT)
+	{
+		m_SwordSwing = true;
+	}
+
+	else if (m_SwordTranslate <= SWORD_TRANSLATE_INIT_AMOUNT)
+	{
+		m_Cooldown = 0.0f;
+		m_Priority = 1;
+		TakingAction = false;
+		m_SwordSwing = false;
+	}
+}
+
+bool CTank::TauntCheck(vector<CEntity*> ListOfCharacters)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+		{
+			if (ListOfCharacters[i]->GetTargetID() != CEntity::TANK)
+			{
+				//Boss is meant to be taunted
+				return true;
+			}
+		}
+	}
+	//No boss to taunt
+	return false;
+}
+
+float CTank::TargetOverRide(void)
+{
+	return m_TauntDuration;
 }

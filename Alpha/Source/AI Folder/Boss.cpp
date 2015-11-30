@@ -2,15 +2,15 @@
 
 
 CBoss::CBoss()
-:TargetChangeDelay(30.f)
+:TargetChangeDelay(10.f)
 {
 	ClassName = "Boss: ";
 	TargetAcquireRange = 10.f;
-	IsTaunted = false;
 	TargetChangeTimer = TargetChangeDelay;
 	m_MoveSpeed = 10.f;
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = BOSS;
+
 	ResetRange = 100.f;
 	CurrentTarget = 0;
 
@@ -36,6 +36,7 @@ CBoss::CBoss()
 	m_LastAttackTimer = m_AttackDelay;
 
 	TakingAction = false;
+	IsTaunted = false;
 }
 
 
@@ -54,6 +55,15 @@ void CBoss::TickTimer(double dt)
 
 	if (m_IsCastingSkill)
 		m_CastingTimer += (float)dt;
+
+	if (m_TauntTimer > 0)
+	{
+		m_TauntTimer -= (float)dt;
+	}
+	else
+	{
+		IsTaunted = false;
+	}
 }
 
 int CBoss::GetCurrentTarget(void)
@@ -61,17 +71,35 @@ int CBoss::GetCurrentTarget(void)
 	return this->CurrentTarget;
 }
 
-
-void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition, Vector3 newDangerPosition)
+void CBoss::TargetPriorityCheck(vector<CEntity*> ListOfEnemies)
 {
-	//Boss event timer
-	TickTimer(dt);
-	//Face the targets position
-	FaceTarget();
+	int currentThreat = 1;
+	int newTarget = 0;
 
+	for (int i = 0; i < ListOfEnemies.size(); ++i)
+	{
+		if (ListOfEnemies[i]->GetPriorityLevel() > currentThreat)
+		{
+			currentThreat = ListOfEnemies[i]->GetPriorityLevel();
+			newTarget = i;
+		}
+	}
+
+	if (currentThreat > 1)
+	{
+		cout << "TAUNTED" << endl;
+		IsTaunted = true;
+		m_TauntTimer = ListOfEnemies[newTarget]->TargetOverRide();
+		TargetPosition = ListOfEnemies[newTarget]->GetPosition();
+		CurrentTargetType = ListOfEnemies[newTarget]->GetTargetID();
+	}
+}
+
+void CBoss::ChooseTarget(vector<CEntity*> ListOfEnemies)
+{
 	if (TargetChangeTimer > TargetChangeDelay)
 	{
-		CurrentTarget =	Probability(0, ListOfEnemies.size()-1);
+		CurrentTarget = Probability(0, ListOfEnemies.size() - 1);
 		TargetChangeTimer = 0.0f;
 	}
 
@@ -82,8 +110,23 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	else
 	{
 		TargetPosition = ListOfEnemies[CurrentTarget]->GetPosition();
+		CurrentTargetType = ListOfEnemies[CurrentTarget]->GetTargetID();
 	}
+}
 
+void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition, Vector3 newDangerPosition)
+{
+	//Boss event timer
+	TickTimer(dt);
+	//Face the targets position
+	FaceTarget();
+
+	TargetPriorityCheck(ListOfEnemies);
+	if (!IsTaunted)
+	{
+		ChooseTarget(ListOfEnemies);
+	}
+	
 	//Prevent game from leaving world space
 	if ((InitialPos - Position).Length() > ResetRange)
 	{
@@ -263,5 +306,28 @@ float CBoss::GetChildRotation(int ChildID)
 		break;
 	}
 
+	return 0;
+}
+
+float CBoss::GetChildTranslation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		return 0;
+		break;
+	case 2:
+
+		break;
+	}
+}
+
+void CBoss::CustomStates(double dt)
+{
+	
+}
+
+float CBoss::TargetOverRide(void)
+{
 	return 0;
 }

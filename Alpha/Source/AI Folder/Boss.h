@@ -27,6 +27,8 @@ public:
 
 	float m_ArmRotation;
 
+	float m_TauntTimer;
+
 	enum STATES
 	{
 		MOVE,
@@ -40,13 +42,18 @@ public:
 	void UpdateAttacking(CEntity*, double dt);
 	void TickTimer(double dt);
 	void RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
+	void CustomStates(double dt);
 	int GetCurrentTarget(void);
 	float GetChildRotation(int ChildID);
+	float GetChildTranslation(int ChildID);
+	float TargetOverRide(void);
+	void TargetPriorityCheck(vector<CEntity*> ListOfEnemies);
+	void ChooseTarget(vector<CEntity*> ListOfEnemies);
 
 private:
 
 	const float TargetChangeDelay;	
-	bool IsTaunted;	
+	bool IsTaunted;
 	bool m_IsCastingSkill;	// Boolean to check if boss is casting skill
 	float m_CastingTimer;	// Timer to keep track how long its cast time is
 	int CurrentTarget;
@@ -57,7 +64,6 @@ private:
 	float m_TotalDamageTaken;
 	Vector3 InitialPos;
 	vector<CEntity*> TargetList;
-
-	
+	Targets CurrentTargetType;
 };
 

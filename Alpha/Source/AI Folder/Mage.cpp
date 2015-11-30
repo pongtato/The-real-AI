@@ -9,6 +9,8 @@ CMage::CMage()
 	
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = MAGE;
+	targetID = MAGE;
+
 	m_HP = 100;
 	m_Curent_HP = m_HP;
 
@@ -26,6 +28,8 @@ CMage::CMage()
 	m_LastAttackTimer = m_AttackDelay;
 
 	TakingAction = false;
+
+	m_Priority = 1;
 }
 
 
@@ -140,7 +144,30 @@ float CMage::GetChildRotation(int ChildID)
 	return 0;
 }
 
+float CMage::GetChildTranslation(int ChildID)
+{
+	switch (ChildID)
+	{
+	case 1:
+		return 0;
+		break;
+	case 2:
+
+		break;
+	}
+}
+
 void CMage::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
+}
+
+void CMage::CustomStates(double dt)
+{
+	
+}
+
+float CMage::TargetOverRide(void)
+{
+	return 0;
 }

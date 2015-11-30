@@ -14,6 +14,68 @@ using namespace std;
 
 class CEntity
 {
+public:
+	CEntity();
+	~CEntity();
+
+	enum STATES
+	{
+		MOVE,
+		ATTACK,
+		RETREAT
+	};
+
+	enum Targets
+	{
+		HEALER,
+		MAGE,
+		TANK,
+		BOSS,
+	};
+
+	void SetTargetPosition(Vector3 TargetPosition);
+	void SetDangerPosition(Vector3 DangerPosition);
+	void SetIsTarget(bool TF);
+	void SetDangerZone(float DZ);
+	void FaceTarget(void);
+	void SetRotation(float Rotate);
+	void SetCurrentHealthPoint(float);
+	void SetID(string newID, string newTYPE);
+	bool TakingAction;
+	float EntityRotation(double dt, float speed, float MaxRotate, float InputRotation);
+	float EntityTranslation(double dt, float speed, float MaxTranslate, float InputTranslate);
+	float GetCurrentHealthPoint(void);
+	float GetHpPercent(void);
+	float GetAttackRange(void);
+	float GetRotation(void);
+	int GetPriorityLevel(void);
+	Vector3 GetPosition();
+	string GetID(void);
+	string GetTYPE(void);
+	Targets GetTargetID(void);
+
+	void Move(Vector3 TargetDestination, double dt);
+	void Retreat(Vector3 TargetDestination, double dt);
+
+	void Attack(void);
+	virtual void UpdateAttacking(double dt);
+	virtual void CustomStates(double dt);
+
+	virtual void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
+	virtual void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
+
+	virtual int Probability(int lowerLimit, int upperLimit);
+
+	virtual void RandomSpawn(int lowerLimit, int upperLimit);
+
+	virtual float GetChildRotation(int ChildID) = 0;
+	virtual float GetChildTranslation(int ChildID) = 0;
+	//Over ride bosses current target
+	virtual float TargetOverRide(void) = 0;
+	virtual void TickTimer(double dt) = 0;
+
+	virtual string GetState(void);
+
 protected:
 	int state;
 	int m_HP;				// Max HP of this AI
@@ -34,66 +96,11 @@ protected:
 
 	Vector3 Position;
 	Vector3 TargetPosition;
-	Vector3 DangerPosition;	
+	Vector3 DangerPosition;
 
 	string ClassName;
 	string ID;
+	Targets targetID;
 	string TYPE;
-
-public:
-	CEntity();
-	~CEntity();
-
-	void SetTargetPosition(Vector3 TargetPosition);
-	void SetDangerPosition(Vector3 DangerPosition);
-	void SetIsTarget(bool TF);
-	void SetDangerZone(float DZ);
-	void FaceTarget(void);
-	void SetRotation(float Rotate);
-	void SetCurrentHealthPoint(float);
-	void SetID(string newID, string newTYPE);
-	bool TakingAction;
-	float EntityRotation(double dt, float speed, float MaxRotate, float InputRotation);
-	float GetCurrentHealthPoint(void);
-	float GetHpPercent(void);
-	float GetAttackRange(void);
-	float GetRotation(void);
-	Vector3 GetPosition();
-	string GetID(void);
-	string GetTYPE(void);
-
-	enum STATES
-	{
-		MOVE,
-		ATTACK,
-		RETREAT
-	};
-
-	enum Targets
-	{
-		HEALER,
-		MAGE,
-		TANK,
-		BOSS,
-	};
-
-	void Move(Vector3 TargetDestination, double dt);
-	void Retreat(Vector3 TargetDestination, double dt);
-
-	void Attack(void);
-	virtual void UpdateAttacking(double dt);
-
-	virtual void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
-	virtual void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
-
-	virtual int Probability(int lowerLimit, int upperLimit);
-
-	virtual void RandomSpawn(int lowerLimit, int upperLimit);
-
-	virtual float GetChildRotation(int ChildID) = 0;
-
-	virtual void TickTimer(double dt) = 0;
-
-	virtual string GetState(void);
 };
 

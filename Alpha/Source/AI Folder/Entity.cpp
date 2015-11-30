@@ -87,9 +87,12 @@ string CEntity::GetTYPE(void)
 
 void CEntity::FaceTarget(void)
 {
-	Vector3 Direction;
-	Direction = (TargetPosition - Position).Normalized();
-	this->m_Rotation = Math::RadianToDegree(atan2(Direction.x, Direction.z)) + MAYA_MODEL_OFFSET;
+	Vector3 Direction = TargetPosition - Position;
+	if (!Direction.IsZero())
+	{
+		Direction.Normalize();
+	}
+		this->m_Rotation = Math::RadianToDegree(atan2(Direction.x, Direction.z)) + MAYA_MODEL_OFFSET;
 }
 
 void CEntity::SetRotation(float Rotate)
@@ -102,6 +105,14 @@ float CEntity::EntityRotation(double dt, float speed, float MaxRotate, float Inp
 	int RotationDirection = (InputRotation > MaxRotate ? 1 : -1);
 	{
 		return InputRotation - speed * (float)dt * RotationDirection;
+	}
+}
+
+float CEntity::EntityTranslation(double dt, float speed, float MaxTranslate, float InputTranslate)
+{
+	int TranslateDirection = (InputTranslate > MaxTranslate ? 1 : -1);
+	{
+		return InputTranslate - speed * (float)dt * TranslateDirection;
 	}
 }
 
@@ -245,4 +256,19 @@ void CEntity::SetCurrentHealthPoint(float hp)
 float CEntity::GetCurrentHealthPoint(void)
 {
 	return m_Curent_HP;
+}
+
+void CEntity::CustomStates(double dt)
+{
+	
+}
+
+CEntity::Targets CEntity::GetTargetID(void)
+{
+	return this->targetID;
+}
+
+int CEntity::GetPriorityLevel(void)
+{
+	return this->m_Priority;
 }
