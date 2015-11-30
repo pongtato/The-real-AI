@@ -148,7 +148,7 @@ void SceneManagerCMPlay::Update(double dt)
 		}
 		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
 		{
-			ListOfCharacters[i]->RunFSM(dt, Boss->GetPosition(), Boss->GetPosition());
+			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
 		}
 		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
 		{

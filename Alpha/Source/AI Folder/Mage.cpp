@@ -13,7 +13,8 @@ CMage::CMage()
 
 	m_HP = 100;
 	m_Curent_HP = m_HP;
-
+	m_AttackSpeed = 1.0f;
+	m_Damage = 10.f;
 	Position.Set(
 		Probability(0, 100),
 		0.1f,
@@ -37,8 +38,20 @@ CMage::~CMage()
 {
 }
 
-void CMage::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition)
+void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	CEntity* Boss = NULL;
+	for (unsigned int i = 0; i < ListOfEnemies.size(); ++i)
+	{
+		if (ListOfEnemies[i]->GetTYPE() == "BOSS")
+		{
+			Boss = ListOfEnemies[i];
+			break;
+		}
+	}
+	if (m_LastAttackTimer <= m_AttackSpeed)
+		m_LastAttackTimer += (float)dt;
+
 	TargetPosition = newTargetPosition;
 	DangerPosition = newDangerPosition;
 	//Face the targets position
