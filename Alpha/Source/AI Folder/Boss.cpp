@@ -87,11 +87,12 @@ void CBoss::TargetPriorityCheck(vector<CEntity*> ListOfEnemies)
 
 	if (currentThreat > 1)
 	{
-		cout << "TAUNTED" << endl;
 		IsTaunted = true;
 		m_TauntTimer = ListOfEnemies[newTarget]->TargetOverRide();
 		TargetPosition = ListOfEnemies[newTarget]->GetPosition();
 		CurrentTargetType = ListOfEnemies[newTarget]->GetTargetID();
+		targetID_NO = ListOfEnemies[newTarget]->GetIDNO();
+		CurrentTarget = targetID_NO;
 	}
 }
 
@@ -111,6 +112,7 @@ void CBoss::ChooseTarget(vector<CEntity*> ListOfEnemies)
 	{
 		TargetPosition = ListOfEnemies[CurrentTarget]->GetPosition();
 		CurrentTargetType = ListOfEnemies[CurrentTarget]->GetTargetID();
+		targetID_NO = ListOfEnemies[CurrentTarget]->GetIDNO();
 	}
 }
 
@@ -126,6 +128,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	{
 		ChooseTarget(ListOfEnemies);
 	}
+
 	
 	//Prevent game from leaving world space
 	if ((InitialPos - Position).Length() > ResetRange)
@@ -141,7 +144,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		{
 			Move(TargetPosition, dt);
 		}
-		else
+		else if (m_LastAttackTimer >= m_AttackDelay)
 		{
 			state = ATTACK;
 		}
@@ -157,11 +160,12 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do attack 
-				UpdateAttacking(ListOfEnemies[CurrentTarget],dt);
+				UpdateAttacking(ListOfEnemies[CurrentTarget], dt);
 			}
 			else
 			{
 				TakingAction = false;
+				state = MOVE;
 			}
 		}
 		else
@@ -215,7 +219,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	}
 }
 
-string CBoss::GetState(void)
+string CBoss::PrintState(void)
 {
 	string DummyText;
 	switch (state)
@@ -286,12 +290,24 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 	// Damage the target when boss is able to attack
 	else if (m_ArmRotation >= ARM_SWING_INIT_AMOUNT)
 	{
-		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+		if (target->DamageNullfiy())
+		{
+			cout << " Blocked " << endl;
+#if _DEBUG
+			cout << "Boss damages the enemy for " << 0 << endl;
+#endif
+		}
+		else
+		{
+			target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+			cout << target->GetCurrentHealthPoint() << endl;
 
 #if _DEBUG
-		cout << "Boss damages the enemy for " << m_Damage << endl;
+			cout << "Boss damages the enemy for " << m_Damage << endl;
 #endif
 
+		}
+		
 		m_LastAttackTimer = 0.0f;
 		TakingAction = false;
 		m_ArmSwing = false;
@@ -333,4 +349,14 @@ void CBoss::CustomStates(double dt)
 float CBoss::TargetOverRide(void)
 {
 	return 0;
+}
+
+int CBoss::GetState(void)
+{
+	return this->state;
+}
+
+bool CBoss::DamageNullfiy(void)
+{
+	return false;
 }

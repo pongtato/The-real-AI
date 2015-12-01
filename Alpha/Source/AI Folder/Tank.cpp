@@ -65,9 +65,14 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		{
 			Move(TargetPosition, dt);
 		}
-		else if (m_Cooldown >= m_SkillDelay)
+		else if (m_Cooldown >= m_SkillDelay && TauntCheck(ListOfCharacters))
 		{
 			state = TAUNT;
+		}
+		else if (AttackCheck(ListOfCharacters))
+		{
+			m_isBlock = true;
+			state = BLOCK;
 		}
 		//Taunt uanvailable
 		else
@@ -104,6 +109,23 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		if (TakingAction)
 		{
 			if (m_Cooldown >= m_SkillDelay)
+			{
+				//Do taunt
+				CustomStates(dt);
+			}
+			else
+			{
+				TakingAction = false;
+				state = ATTACK;
+			}
+		}
+		break;
+	case BLOCK:
+		TakingAction = true;
+
+		if (TakingAction)
+		{
+			if (m_isBlock)
 			{
 				//Do taunt
 				CustomStates(dt);
@@ -202,7 +224,42 @@ void CTank::UpdateAttacking(double dt)
 
 void CTank::CustomStates(double dt)
 {
-	UpdateTaunt(dt);
+	if (!m_isBlock)
+	{
+		UpdateTaunt(dt);
+	}
+	else
+	{
+		UpdateBlock(dt);
+	}
+}
+
+void CTank::UpdateBlock(double dt)
+{
+	bool HasReturned;
+
+	//Blocking
+	if (!m_ShieldSwing)
+	{
+		m_ShieldRotation = EntityRotation(dt, SHIELD_SWING_SPEED, SHIELD_SWING_ROT_AMOUNT, m_ShieldRotation);
+	}
+	//Shield returning
+	else
+	{
+		m_ShieldRotation = EntityRotation(dt, SHIELD_SWING_SPEED, SHIELD_SWING_INIT_AMOUNT, m_ShieldRotation);
+	}
+
+	if (m_ShieldRotation <= SHIELD_SWING_ROT_AMOUNT)
+	{
+		m_ShieldSwing = true;
+	}
+
+	else if (m_ShieldRotation >= SHIELD_SWING_INIT_AMOUNT)
+	{
+		TakingAction = false;
+		m_ShieldSwing = false;
+		m_isBlock = false;
+	}
 }
 
 void CTank::UpdateTaunt(double dt)
@@ -252,7 +309,44 @@ bool CTank::TauntCheck(vector<CEntity*> ListOfCharacters)
 	return false;
 }
 
+bool CTank::AttackCheck(vector<CEntity*> ListOfCharacters)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+		{
+			if (ListOfCharacters[i]->GetState() == CTank::ATTACK && ListOfCharacters[i]->GetTargetIDNO() == this->ID_NO)
+			{
+				//Currently the target to be attacked, try to block
+				int RNG = Probability(0, 100);
+#if _DEBUG
+				cout << " Trying to block, ROLLED: " << RNG << endl;
+#endif
+				if (RNG <= BLOCK_CHANCE)
+				{
+#if _DEBUG
+					cout << " BLOCKING! " << endl;
+#endif
+					return true;
+				}
+			}
+		}
+	}
+	//No need to block
+	return false;
+}
+
 float CTank::TargetOverRide(void)
 {
 	return m_TauntDuration;
+}
+
+int CTank::GetState(void)
+{
+	return this->state;
+}
+
+bool CTank::DamageNullfiy(void)
+{
+	return m_isBlock;
 }

@@ -38,7 +38,7 @@ public:
 		RESET
 	};
 
-	string GetState(void);
+	string PrintState(void);
 	void UpdateAttacking(CEntity*, double dt);
 	void TickTimer(double dt);
 	void RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
@@ -65,5 +65,7 @@ private:
 	Vector3 InitialPos;
 	vector<CEntity*> TargetList;
 	Targets CurrentTargetType;
+	int GetState(void);
+	bool DamageNullfiy(void);
 };
 

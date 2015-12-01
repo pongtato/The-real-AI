@@ -36,7 +36,7 @@ CHealer::~CHealer()
 {
 }
 
-string CHealer::GetState(void)
+string CHealer::PrintState(void)
 {
 	string DummyText;
 
@@ -206,4 +206,14 @@ void CHealer::CustomStates(double dt)
 float CHealer::TargetOverRide(void)
 {
 	return 0;
+}
+
+int CHealer::GetState(void)
+{
+	return this->state;
+}
+
+bool CHealer::DamageNullfiy(void)
+{
+	return false;
 }

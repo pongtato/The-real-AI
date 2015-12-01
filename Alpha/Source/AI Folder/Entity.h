@@ -40,7 +40,7 @@ public:
 	void FaceTarget(void);
 	void SetRotation(float Rotate);
 	void SetCurrentHealthPoint(float);
-	void SetID(string newID, string newTYPE);
+	void SetID(string newID, string newTYPE, int ID_NO);
 	bool TakingAction;
 	float EntityRotation(double dt, float speed, float MaxRotate, float InputRotation);
 	float EntityTranslation(double dt, float speed, float MaxTranslate, float InputTranslate);
@@ -49,6 +49,8 @@ public:
 	float GetAttackRange(void);
 	float GetRotation(void);
 	int GetPriorityLevel(void);
+	int GetIDNO(void);
+	int GetTargetIDNO(void);
 	Vector3 GetPosition();
 	string GetID(void);
 	string GetTYPE(void);
@@ -74,13 +76,18 @@ public:
 	virtual float TargetOverRide(void) = 0;
 	virtual void TickTimer(double dt) = 0;
 
-	virtual string GetState(void);
+	virtual bool DamageNullfiy(void) = 0;
+
+	virtual string PrintState(void);
+	virtual int GetState(void) = 0;
 
 protected:
 	int state;
 	int m_HP;				// Max HP of this AI
 	int m_Curent_HP;		// Current HP of this AI
-	int m_Priority;
+	int m_Priority;			// Boss attack priority level
+	int ID_NO;				// Number assigned to this unit
+	int targetID_NO;		// Targets assigned number
 	float m_Rotation;		// Rotation value of this AI
 	float m_MoveSpeed;		// SPD of this AI
 	float m_RunSpeed;		// Retreating SPD of this AI
@@ -100,7 +107,9 @@ protected:
 
 	string ClassName;
 	string ID;
+	
 	Targets targetID;
+	
 	string TYPE;
 };
 

@@ -69,10 +69,11 @@ float CEntity::GetRotation(void)
 	return this->m_Rotation;
 }
 
-void CEntity::SetID(string newID, string newTYPE)
+void CEntity::SetID(string newID, string newTYPE, int ID_NO)
 {
 	this->ID = newID;
 	this->TYPE = newTYPE;
+	this->ID_NO = ID_NO;
 }
 
 string CEntity::GetID(void)
@@ -224,7 +225,7 @@ void CEntity::UpdateAttacking(double dt)
 
 }
 
-string CEntity::GetState(void)
+string CEntity::PrintState(void)
 {
 	string DummyText;
 	switch (state)
@@ -272,3 +273,19 @@ int CEntity::GetPriorityLevel(void)
 {
 	return this->m_Priority;
 }
+
+int CEntity::GetIDNO(void)
+{
+	return this->ID_NO;
+}
+
+int CEntity::GetTargetIDNO(void)
+{
+	return this->targetID_NO;
+}
+
+bool CEntity::DamageNullfiy(void)
+{
+	return false;
+}
+

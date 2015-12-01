@@ -34,6 +34,7 @@ private:
 	int MAGE_COUNT;
 	int	HEALER_COUNT;
 	int BOSS_COUNT;
+	int TOTAL_COUNT;
 
 public:
 	SceneManagerCMPlay();

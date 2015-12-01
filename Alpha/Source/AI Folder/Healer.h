@@ -25,7 +25,7 @@ public:
 	CHealer();
 	~CHealer();
 
-	string GetState(void);
+	string PrintState(void);
 	void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	void UpdateAttacking(double dt);
 	float GetChildRotation(int ChildID);
@@ -33,5 +33,7 @@ public:
 	void CustomStates(double dt);
 	float TargetOverRide(void);
 	void TickTimer(double dt);
+	int GetState(void);
+	bool DamageNullfiy(void);
 };
 

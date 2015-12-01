@@ -184,3 +184,13 @@ float CMage::TargetOverRide(void)
 {
 	return 0;
 }
+
+int CMage::GetState(void)
+{
+	return this->state;
+}
+
+bool CMage::DamageNullfiy(void)
+{
+	return false;
+}

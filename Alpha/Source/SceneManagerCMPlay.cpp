@@ -71,26 +71,35 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	int MAGE_COUNT = 1;
 	int	HEALER_COUNT = 1;
 	int BOSS_COUNT = 1;
+	int TOTAL_COUNT = 0;
 
 	string newName = "WARRIOR_";
 	newName += to_string(TANK_COUNT);
-	Tank->SetID(newName, WARRIOR);
+	Tank->SetID(newName, WARRIOR, TOTAL_COUNT);
 	Tank->RandomSpawn(0, 100);
+
+	TOTAL_COUNT++;
 
 	newName = "MAGE_";
 	newName += to_string(MAGE_COUNT);
-	Mage->SetID(newName,MAGE);
+	Mage->SetID(newName, MAGE, TOTAL_COUNT);
 	Mage->RandomSpawn(0, 100);
+
+	TOTAL_COUNT++;
 
 	newName = "HEALER_";
 	newName += to_string(HEALER_COUNT);
-	Healer->SetID(newName,HEALER);
+	Healer->SetID(newName, HEALER, TOTAL_COUNT);
 	Healer->RandomSpawn(0, 100);
+
+	TOTAL_COUNT++;
 
 	newName = "BOSS_";
 	newName += to_string(BOSS_COUNT);
-	Boss->SetID(newName,BOSS);
+	Boss->SetID(newName, BOSS, TOTAL_COUNT);
 	Boss->RandomSpawn(0, 100);
+
+	TOTAL_COUNT++;
 
 	ListOfCharacters.push_back(Tank);
 	ListOfCharacters.push_back(Mage);
@@ -399,7 +408,7 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	IDPlus += theTank->GetID().back();
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 0));
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_1), 0, 1, 0);
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_2), 0, 1, 0);
 
 	IDPlus = theTank->GetID();
 	IDPlus += SHIELD;

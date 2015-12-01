@@ -23,5 +23,6 @@ public:
 	float GetChildTranslation(int ChildID);
 	float TargetOverRide(void);
 	void TickTimer(double dt);
-
+	int GetState(void);
+	bool DamageNullfiy(void);
 };
