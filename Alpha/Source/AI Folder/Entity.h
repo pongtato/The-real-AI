@@ -60,7 +60,7 @@ public:
 	void Retreat(Vector3 TargetDestination, double dt);
 
 	void Attack(void);
-	virtual void UpdateAttacking(double dt);
+	virtual void UpdateAttacking(CEntity*, double dt);
 	virtual void CustomStates(double dt);
 
 	virtual void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);

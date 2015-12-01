@@ -49,7 +49,8 @@ public:
 	float TargetOverRide(void);
 	void TargetPriorityCheck(vector<CEntity*> ListOfEnemies);
 	void ChooseTarget(vector<CEntity*> ListOfEnemies);
-
+	void AddDamageTaken(float);
+	float GetDamageTaken(void);
 private:
 
 	const float TargetChangeDelay;	

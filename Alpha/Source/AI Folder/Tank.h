@@ -1,6 +1,6 @@
 #pragma once
 #include "Entity.h"
-
+#include "Boss.h"
 class CTank : public CEntity
 {
 
@@ -45,7 +45,7 @@ public:
 
 	void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 
-	void UpdateAttacking(double dt);
+	void UpdateAttacking(CEntity*, double dt);
 	void UpdateBlock(double dt);
 	bool TauntCheck(vector<CEntity*> ListOfCharacters);
 	bool AttackCheck(vector<CEntity*> ListOfCharacters);

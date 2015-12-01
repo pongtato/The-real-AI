@@ -91,7 +91,13 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do attack 
-				UpdateAttacking(dt);
+				for (int i = 0; i < ListOfCharacters.size(); ++i)
+				{
+					if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+					{
+						UpdateAttacking(ListOfCharacters[i],dt);
+					}
+				}
 			}
 			else
 			{
@@ -194,7 +200,7 @@ void CTank::TickTimer(double dt)
 	m_Cooldown += dt;
 }
 
-void CTank::UpdateAttacking(double dt)
+void CTank::UpdateAttacking(CEntity* target, double dt)
 {
 	bool HasReturned;
 
@@ -216,9 +222,24 @@ void CTank::UpdateAttacking(double dt)
 
 	else if (m_SwordRotation <= SWORD_SWING_INIT_AMOUNT)
 	{
-		m_LastAttackTimer = 0.0f;
-		TakingAction = false;
-		m_SwordSwing = false;
+		
+
+		if (CBoss* boss = dynamic_cast<CBoss*>(target))
+		{
+			boss->SetCurrentHealthPoint(boss->GetCurrentHealthPoint() - m_Damage); // Damage the boss
+			boss->AddDamageTaken(m_Damage); // Update the damage threshold of the boss
+			m_LastAttackTimer = 0.0f;
+			TakingAction = false;
+			m_SwordSwing = false;
+
+#if _DEBUG
+			cout << "===========================================" << endl;
+			cout << this->GetID() << " damages " << boss->GetID() << " for: " << m_Damage << endl;
+			cout << boss->GetID() << " current HP: " << boss->GetCurrentHealthPoint() << endl;
+			cout << boss->GetID() << " damage taken since last AoE: " << boss->GetDamageTaken() << endl;
+			cout << "===========================================" << endl;
+#endif
+		}
 	}
 }
 

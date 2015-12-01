@@ -220,7 +220,7 @@ void CEntity::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	}
 }
 
-void CEntity::UpdateAttacking(double dt)
+void CEntity::UpdateAttacking(CEntity*, double dt)
 {
 
 }

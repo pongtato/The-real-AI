@@ -9,7 +9,7 @@ CHealer::CHealer()
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = HEALER;
 	targetID = HEALER;
-
+	m_Damage = 10.f;
 	m_HP = 100;
 	m_Curent_HP = m_HP;
 
@@ -64,7 +64,7 @@ string CHealer::PrintState(void)
 void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
 	float lowestHP = 0;
-
+	CEntity* target = NULL;
 	DangerPosition = newDangerPosition;
 	//Face the targets position
 	FaceTarget();
@@ -77,6 +77,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		{
 			lowestHP = ListOfCharacters[i]->GetHpPercent();
 			TargetPosition = ListOfCharacters[i]->GetPosition();
+			target = ListOfCharacters[i];
 		}
 	}
 
@@ -107,8 +108,9 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		{
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
-				//Do attack 
-				UpdateAttacking(dt);
+				//Do Healing
+				if (target)
+				UpdateAttacking(target,dt);
 			}
 			else
 			{
@@ -135,7 +137,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	}
 }
 
-void CHealer::UpdateAttacking(double dt)
+void CHealer::UpdateAttacking(CEntity* target ,double dt)
 {
 	//True  =  - speed, curr rotation > target rotation
 	//False  =  + speed, curr rotation < target rotation
@@ -160,9 +162,16 @@ void CHealer::UpdateAttacking(double dt)
 
 	else if (m_RodRotation <= ROD_SWING_INIT_AMOUNT)
 	{
+		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() + m_Damage); // Heal the target
 		m_LastAttackTimer = 0.0f;
 		TakingAction = false;
 		m_RodSwing = false;
+#if _DEBUG
+		cout << "===========================================" << endl;
+		cout << this->GetID() << " heals " << target->GetID() << " for " << m_Damage << endl;
+		cout << target->GetID() << " current HP : " << target->GetCurrentHealthPoint() << endl;
+		cout << "===========================================" << endl;
+#endif
 	}
 }
 

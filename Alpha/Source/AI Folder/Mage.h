@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "Boss.h"
 class CMage : public CEntity
 {
 private:
@@ -17,7 +18,7 @@ public:
 	CMage();
 	~CMage();
 	void RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
-	void UpdateAttacking(double dt);
+	void UpdateAttacking(CEntity*, double dt);
 	void CustomStates(double dt);
 	float GetChildRotation(int ChildID);
 	float GetChildTranslation(int ChildID);

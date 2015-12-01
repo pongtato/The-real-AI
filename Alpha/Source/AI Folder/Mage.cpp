@@ -86,7 +86,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do attack 
-				UpdateAttacking(dt);
+				UpdateAttacking(Boss,dt);
 			}
 			else
 			{
@@ -112,7 +112,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		break;
 	}
 }
-void CMage::UpdateAttacking(double dt)
+void CMage::UpdateAttacking(CEntity* target, double dt)
 {
 	//True  =  - speed, curr rotation > target rotation
 	//False  =  + speed, curr rotation < target rotation
@@ -137,9 +137,22 @@ void CMage::UpdateAttacking(double dt)
 
 	else if (m_StaffRotation <= STAFF_SWING_INIT_AMOUNT)
 	{
-		m_LastAttackTimer = 0.0f;
-		TakingAction = false;
-		m_StaffSwing = false;
+		if (CBoss* boss = dynamic_cast<CBoss*>(target))
+		{
+			boss->SetCurrentHealthPoint(boss->GetCurrentHealthPoint() - m_Damage); // Damage the boss
+			boss->AddDamageTaken(m_Damage); // Update the damage threshold of the boss
+			m_LastAttackTimer = 0.0f;
+			TakingAction = false;
+			m_StaffSwing = false;
+
+#if _DEBUG
+			cout << "===========================================" << endl;
+			cout << this->GetID() << " damages " <<boss->GetID() << " for " << m_Damage << endl;
+			cout << boss->GetID() << " current HP: " << boss->GetCurrentHealthPoint() << endl;
+			cout << boss->GetID() << " damage taken since last AoE: " << boss->GetDamageTaken() << endl;
+			cout << "===========================================" << endl;
+#endif
+		}
 	}
 }
 

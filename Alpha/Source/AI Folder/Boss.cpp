@@ -21,6 +21,7 @@ CBoss::CBoss()
 
 	Position = InitialPos;
 	m_HP = 2000;
+	m_Curent_HP = m_HP;
 	m_IsCastingSkill = false;
 	m_DamageThreshold = 100.f;
 	m_TotalDamageTaken = 0.f;
@@ -196,21 +197,31 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	case CAST_SKILL:
 		if (m_CastingTimer > DEFAULT_CASTING_TIME)
 		{
+#if _DEBUG
+			cout << "===========================================" << endl;
+			cout << "Boss slams the ground for AoE Damage!" << endl;
+			cout << "===========================================" << endl;
+#endif
 			m_IsCastingSkill = false;
 			m_CastingTimer = 0;
 			m_TotalDamageTaken = 0; // Reset the damage taken threshold
 			// Damage every enemy around the Boss within a radius
 			for (unsigned short i = 0; i < ListOfEnemies.size(); ++i)
 			{
-				if ((ListOfEnemies[i]->GetPosition() - Position).Length() < DEFAULT_SKILL_RANGE)
+				if ((ListOfEnemies[i]->GetPosition() - Position).Length() < DEFAULT_SKILL_RANGE && ListOfEnemies[i]->GetTYPE() != "BOSS")
 				{
 					ListOfEnemies[i]->SetCurrentHealthPoint(ListOfEnemies[i]->GetCurrentHealthPoint() - DEFAULT_SKILL_DAMAGE);
+
+#if _DEBUG
+					cout << "===========================================" << endl;
+					cout << ListOfEnemies[i]->GetID() << " takes " << DEFAULT_SKILL_DAMAGE << " Damage!" << endl;
+					cout << ListOfEnemies[i]->GetID() << " current HP " << ListOfEnemies[i]->GetCurrentHealthPoint() << endl;
+					cout << "===========================================" << endl;
+#endif
 				}
 			}
 
-#if _DEBUG
-			cout << "Boss slams the ground for AoE Damage!" << endl;
-#endif
+
 			state = MOVE;
 		}
 		break;
@@ -245,6 +256,14 @@ string CBoss::PrintState(void)
 		return DummyText;
 		break;
 	}
+}
+void CBoss::AddDamageTaken(float dmg)
+{
+	m_TotalDamageTaken += dmg;
+}
+float CBoss::GetDamageTaken(void)
+{
+	return m_TotalDamageTaken;
 }
 
 void CBoss::UpdateAttacking(CEntity* target, double dt)
@@ -294,7 +313,7 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 		{
 			cout << " Blocked " << endl;
 #if _DEBUG
-			cout << "Boss damages the enemy for " << 0 << endl;
+			cout << "Boss damages "<<target->GetID() << " for " << 0 << endl;
 #endif
 		}
 		else
@@ -303,7 +322,7 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 			cout << target->GetCurrentHealthPoint() << endl;
 
 #if _DEBUG
-			cout << "Boss damages the enemy for " << m_Damage << endl;
+			cout << "Boss damages " << target->GetID() << " for " << m_Damage << endl;
 #endif
 
 		}
