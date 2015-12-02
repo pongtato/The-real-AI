@@ -75,7 +75,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			state = BLOCK;
 		}
 		//Taunt uanvailable
-		else
+		else if (m_LastAttackTimer >= m_AttackDelay)
 		{
 			state = ATTACK;
 		}
@@ -370,4 +370,37 @@ int CTank::GetState(void)
 bool CTank::DamageNullfiy(void)
 {
 	return m_isBlock;
+}
+
+string CTank::PrintState(void)
+{
+	string DummyText;
+
+	switch (state)
+	{
+	case CTank::MOVE:
+		DummyText = ClassName + "MOVE";
+		return DummyText;
+		break;
+	case CTank::ATTACK:
+		DummyText = ClassName + "ATTACK";
+		return DummyText;
+		break;
+	case CTank::TAUNT:
+		DummyText = ClassName + "TAUNT";
+		return DummyText;
+		break;
+	case CTank::BLOCK:
+		DummyText = ClassName + "BLOCK";
+		return DummyText;
+		break;
+	case CTank::RETREAT:
+		DummyText = ClassName + "RETREAT";
+		return DummyText;
+		break;
+	default:
+		DummyText = ClassName + "NULL";
+		return DummyText;
+		break;
+	}
 }

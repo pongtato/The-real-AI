@@ -183,7 +183,7 @@ Render a mesh in 3D
 ********************************************************************************/
 void SceneManager::Render3DMesh(Mesh* mesh, bool enableLight)
 {
-	if (!mesh || mesh->textureID <= 0)
+	if (!mesh)
 		return;
 
 	Mtx44 MVP, modelView, modelView_inverse_transpose;

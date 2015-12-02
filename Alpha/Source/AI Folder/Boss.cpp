@@ -141,7 +141,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
@@ -245,6 +245,10 @@ string CBoss::PrintState(void)
 		break;
 	case RETREAT:
 		DummyText = ClassName + "RETREAT";
+		return DummyText;
+		break;
+	case CAST_SKILL:
+		DummyText = ClassName + "CASTING SKILL";
 		return DummyText;
 		break;
 	case RESET:

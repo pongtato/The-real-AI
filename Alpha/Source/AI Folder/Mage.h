@@ -26,4 +26,5 @@ public:
 	void TickTimer(double dt);
 	int GetState(void);
 	bool DamageNullfiy(void);
+	string PrintState(void);
 };

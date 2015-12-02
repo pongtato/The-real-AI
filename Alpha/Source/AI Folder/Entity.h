@@ -78,7 +78,7 @@ public:
 
 	virtual bool DamageNullfiy(void) = 0;
 
-	virtual string PrintState(void);
+	virtual string PrintState(void) = 0;
 	virtual int GetState(void) = 0;
 
 protected:

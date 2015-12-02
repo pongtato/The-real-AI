@@ -60,5 +60,7 @@ public:
 	float GetSwordRotation(void);
 	float GetShieldRotation(void);
 	int GetState(void);
+
+	string PrintState(void);
 };
 

@@ -338,9 +338,43 @@ void SceneManagerCMPlay::RenderStaticObject()
 	modelStack.PopMatrix();
 }
 
+void SceneManagerCMPlay::RenderPlayerStats()
+{
+	float m_BillBoard;
+	Mesh* drawMesh = resourceManager.retrieveMesh("FONT");
+	drawMesh->textureID = resourceManager.retrieveTexture("STATUSFONT");
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		Vector3 Direction = tpCamera.getPosition() - ListOfCharacters[i]->GetPosition();
+		
+		if (!Direction.IsZero())
+		{
+			Direction.Normalize();
+			m_BillBoard = Math::RadianToDegree(atan2f(Direction.y, Direction.x)) + 90;
+		}
+
+		modelStack.PushMatrix();
+		modelStack.Translate(ListOfCharacters[i]->GetPosition().x + 10.f, ListOfCharacters[i]->GetPosition().y + 15.f, ListOfCharacters[i]->GetPosition().z);
+		modelStack.Rotate(m_BillBoard, 0, 1, 0);
+		modelStack.Scale(2.f, 2.f, 2.f);
+		RenderText(drawMesh, ListOfCharacters[i]->PrintState(), resourceManager.retrieveColor("White"));	
+		modelStack.PopMatrix();
+	}
+}
+
 void SceneManagerCMPlay::RenderMobileObject()
 {
+	//template circle
+	modelStack.PushMatrix();
+	modelStack.Translate(20, 0, 0);
+	modelStack.Rotate(-90, 1, 0, 0);
+	modelStack.Scale(10.f, 10.f, 10.f);
+	Render3DMesh(resourceManager.retrieveMesh("CIRCLE"), true);
+	modelStack.PopMatrix();
+
 	FSMApplication();
+	RenderPlayerStats();
 	sceneGraph->Draw(this);
 }
 

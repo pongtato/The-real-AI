@@ -89,7 +89,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}

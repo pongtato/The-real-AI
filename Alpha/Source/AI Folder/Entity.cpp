@@ -225,30 +225,6 @@ void CEntity::UpdateAttacking(CEntity*, double dt)
 
 }
 
-string CEntity::PrintState(void)
-{
-	string DummyText;
-	switch (state)
-	{
-	case MOVE:
-		DummyText = ClassName + "MOVE";
-		return DummyText;
-		break;
-	case ATTACK:
-		DummyText = ClassName + "ATTACK";
-		return DummyText;
-		break;
-	case RETREAT:
-		DummyText = ClassName + "RETREAT";
-		return DummyText;
-		break;
-	default:
-		DummyText = ClassName + "NULL";
-		return DummyText;
-		break;
-	}
-}
-
 void CEntity::SetCurrentHealthPoint(float hp)
 {
 	this->m_Curent_HP = hp;

@@ -66,7 +66,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
@@ -206,4 +206,29 @@ int CMage::GetState(void)
 bool CMage::DamageNullfiy(void)
 {
 	return false;
+}
+
+string CMage::PrintState(void)
+{
+	string DummyText;
+
+	switch (state)
+	{
+	case CMage::MOVE:
+		DummyText = ClassName + "MOVE";
+		return DummyText;
+		break;
+	case CMage::ATTACK:
+		DummyText = ClassName + "ATTACK";
+		return DummyText;
+		break;
+	case CMage::RETREAT:
+		DummyText = ClassName + "RETREAT";
+		return DummyText;
+		break;
+	default:
+		DummyText = ClassName + "NULL";
+		return DummyText;
+		break;
+	}
 }

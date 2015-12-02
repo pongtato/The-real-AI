@@ -85,6 +85,12 @@
 		[Type] Obj
 		[Directory] Config\\Resources\\Obj\\AI\\BossArm.obj
 	}
+	{
+		[NAME] CIRCLE
+		[Type] Circle
+		[Slices] 36
+		[Radius] 1
+	}
 }
 
 # Types available

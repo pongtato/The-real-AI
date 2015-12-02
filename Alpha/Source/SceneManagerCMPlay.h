@@ -56,6 +56,7 @@ public:
 	void RenderBG();
 	void RenderStaticObject();
 	void RenderMobileObject();
+	void RenderPlayerStats();
 
 	void AddTANK(string ID);
 	void AddMAGE(string ID);
