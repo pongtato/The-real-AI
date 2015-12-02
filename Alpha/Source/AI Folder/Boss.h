@@ -13,7 +13,7 @@ public:
 
 	static const int DEFAULT_COOLDOWN = 20;
 	static const int DEFAULT_CASTING_TIME = 1;
-	static const int DEFAULT_SKILL_RANGE = 10;
+	static const int DEFAULT_SKILL_RANGE = 30;
 	static const int DEFAULT_SKILL_DAMAGE = 20;
 	static const int DEFAULT_DAMAGE = 10;
 
@@ -51,6 +51,8 @@ public:
 	void ChooseTarget(vector<CEntity*> ListOfEnemies);
 	void AddDamageTaken(float);
 	float GetDamageTaken(void);
+	float GetSkillRadius(void);
+	bool GetCastingSkillBool(void);
 private:
 
 	const float TargetChangeDelay;	
@@ -63,6 +65,7 @@ private:
 	float ResetRange;
 	float m_DamageThreshold;
 	float m_TotalDamageTaken;
+	float m_Skill_Range_Radius;
 	Vector3 InitialPos;
 	vector<CEntity*> TargetList;
 	Targets CurrentTargetType;

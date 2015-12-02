@@ -27,7 +27,7 @@ CBoss::CBoss()
 	m_TotalDamageTaken = 0.f;
 	m_CastingTimer = 0.f;
 	m_Damage = DEFAULT_DAMAGE;
-
+	m_Skill_Range_Radius = 1.f;
 	m_ArmSwing = false;
 	m_ArmRotation = 0.0f;
 
@@ -44,7 +44,10 @@ CBoss::CBoss()
 CBoss::~CBoss()
 {
 }
-
+float CBoss::GetSkillRadius(void)
+{
+	return m_Skill_Range_Radius;
+}
 void CBoss::TickTimer(double dt)
 {
 	TargetChangeTimer += (float)dt;
@@ -55,8 +58,10 @@ void CBoss::TickTimer(double dt)
 		m_Cooldown -= (float)dt;
 
 	if (m_IsCastingSkill)
+	{
 		m_CastingTimer += (float)dt;
-
+		m_Skill_Range_Radius += (float)dt * 50.f;
+	}
 	if (m_TauntTimer > 0)
 	{
 		m_TauntTimer -= (float)dt;
@@ -65,6 +70,10 @@ void CBoss::TickTimer(double dt)
 	{
 		IsTaunted = false;
 	}
+}
+bool CBoss::GetCastingSkillBool(void)
+{
+	return m_IsCastingSkill;
 }
 
 int CBoss::GetCurrentTarget(void)
@@ -205,10 +214,11 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			m_IsCastingSkill = false;
 			m_CastingTimer = 0;
 			m_TotalDamageTaken = 0; // Reset the damage taken threshold
+			m_Skill_Range_Radius = 1.f;
 			// Damage every enemy around the Boss within a radius
 			for (unsigned short i = 0; i < ListOfEnemies.size(); ++i)
 			{
-				if ((ListOfEnemies[i]->GetPosition() - Position).Length() < DEFAULT_SKILL_RANGE && ListOfEnemies[i]->GetTYPE() != "BOSS")
+				if ((ListOfEnemies[i]->GetPosition() - Position).Length() < m_Skill_Range_Radius && ListOfEnemies[i]->GetTYPE() != "BOSS")
 				{
 					ListOfEnemies[i]->SetCurrentHealthPoint(ListOfEnemies[i]->GetCurrentHealthPoint() - DEFAULT_SKILL_DAMAGE);
 
