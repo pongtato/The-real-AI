@@ -36,6 +36,11 @@ private:
 	int BOSS_COUNT;
 	int TOTAL_COUNT;
 
+	int ViewChoice;
+	float KeyDelay;
+	//Camera billboard direction
+	Vector3 theDirection;
+
 public:
 	SceneManagerCMPlay();
 	~SceneManagerCMPlay();

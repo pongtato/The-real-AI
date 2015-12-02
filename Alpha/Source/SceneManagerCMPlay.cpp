@@ -7,7 +7,8 @@ SceneManagerCMPlay::SceneManagerCMPlay()
 , Mage(NULL)
 , Boss(NULL)
 {
-
+	ViewChoice = 0;
+	KeyDelay = 0.f;
 }
 
 SceneManagerCMPlay::~SceneManagerCMPlay()
@@ -121,9 +122,6 @@ void SceneManagerCMPlay::Update(double dt)
 	//Uncomment the following line to play sound
 	//resourceManager.retrieveSound("MenuFeedback");
 
-	tpCamera.UpdatePosition(Vector3(0, 0, 0), Vector3(0, 0, 0));
-	//tpCamera.Update(dt);
-
 	if (inputManager->getKey("ToggleWireFrame"))
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -133,6 +131,36 @@ void SceneManagerCMPlay::Update(double dt)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+
+	KeyDelay = Math::Clamp(KeyDelay += (float)dt, 0.f, 1.f);
+
+	if (inputManager->getKey("Up") && KeyDelay >= 1.f)
+	{
+		ViewChoice = Math::Wrap(ViewChoice + 1, 0, ((int)ListOfCharacters.size() - 1));
+		KeyDelay = 0.0f;
+	}
+
+	if (inputManager->getKey("Down") && KeyDelay >= 1.f)
+	{
+		ViewChoice = Math::Wrap(ViewChoice - 1, 0, ((int)ListOfCharacters.size() - 1));
+		KeyDelay = 0.0f;
+	}
+
+	Vector3 m_CameraFollow = ListOfCharacters[ViewChoice]->GetPosition();
+
+	theDirection = tpCamera.getTarget() - ListOfCharacters[ViewChoice]->GetPosition();
+	if (!theDirection.IsZero())
+	{
+		theDirection.Normalize();
+	}
+
+	tpCamera.UpdatePosition((m_CameraFollow - (theDirection * 15.f)), Vector3(0, 0, 0));
+	//tpCamera.Update(dt);
+
+	//cout << (m_CameraFollow - (theDirection * 15.f)) << endl;
+	//cout << theDirection << endl;
+	//cout << tpCamera.getPosition() << endl;
+	
 
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
@@ -346,16 +374,31 @@ void SceneManagerCMPlay::RenderPlayerStats()
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		Vector3 Direction = tpCamera.getPosition() - ListOfCharacters[i]->GetPosition();
-		
+		Vector2 CopyVector;
+		Vector2 CopyVector2;
+
+		CopyVector.Set(tpCamera.getPosition().x, tpCamera.getPosition().z);
+		CopyVector2.Set(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().z);
+
+		Vector2 Direction = (CopyVector - CopyVector2).Normalized();
+	
 		if (!Direction.IsZero())
 		{
-			Direction.Normalize();
-			m_BillBoard = Math::RadianToDegree(atan2f(Direction.y, Direction.x)) + 90;
+			m_BillBoard = Math::RadianToDegree(atan2f(Direction.y, Direction.x));
+		}
+
+		if (m_BillBoard <= 0)
+		{
+			//m_BillBoard += 360;
+		}
+
+		if (i == 0)
+		{
+			cout << m_BillBoard << endl;
 		}
 
 		modelStack.PushMatrix();
-		modelStack.Translate(ListOfCharacters[i]->GetPosition().x + 10.f, ListOfCharacters[i]->GetPosition().y + 15.f, ListOfCharacters[i]->GetPosition().z);
+		modelStack.Translate(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().y + 15.f, ListOfCharacters[i]->GetPosition().z);
 		modelStack.Rotate(m_BillBoard, 0, 1, 0);
 		modelStack.Scale(2.f, 2.f, 2.f);
 		RenderText(drawMesh, ListOfCharacters[i]->PrintState(), resourceManager.retrieveColor("White"));	
