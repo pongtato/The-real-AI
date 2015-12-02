@@ -8,6 +8,7 @@ CEntity::CEntity()
 	IsTarget = false;
 	m_Rotation = 0.0f;
 	m_LastAttackTimer = 0.f;
+	m_StateChangeTimer = 0.f;
 }
 
 
@@ -227,7 +228,14 @@ void CEntity::UpdateAttacking(CEntity*, double dt)
 
 void CEntity::SetCurrentHealthPoint(float hp)
 {
-	this->m_Curent_HP = hp;
+	if (hp >= m_HP)
+	{
+		this->m_Curent_HP = m_HP;
+	}
+	else
+	{
+		this->m_Curent_HP = hp;
+	}
 }
 
 float CEntity::GetCurrentHealthPoint(void)

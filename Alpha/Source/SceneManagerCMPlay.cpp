@@ -68,46 +68,39 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	Mage->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 	Healer->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 
-	int TANK_COUNT = 1;
-	int MAGE_COUNT = 1;
-	int	HEALER_COUNT = 1;
-	int BOSS_COUNT = 1;
-	int TOTAL_COUNT = 0;
+	 TANK_COUNT = 1;
+	 MAGE_COUNT = 1;
+	HEALER_COUNT = 1;
+	 BOSS_COUNT = 1;
+	 TOTAL_COUNT = 0;
 
 	string newName = "WARRIOR_";
 	newName += to_string(TANK_COUNT);
 	Tank->SetID(newName, WARRIOR, TOTAL_COUNT);
 	Tank->RandomSpawn(0, 100);
 
-	TOTAL_COUNT++;
-
 	newName = "MAGE_";
 	newName += to_string(MAGE_COUNT);
 	Mage->SetID(newName, MAGE, TOTAL_COUNT);
 	Mage->RandomSpawn(0, 100);
-
-	TOTAL_COUNT++;
 
 	newName = "HEALER_";
 	newName += to_string(HEALER_COUNT);
 	Healer->SetID(newName, HEALER, TOTAL_COUNT);
 	Healer->RandomSpawn(0, 100);
 
-	TOTAL_COUNT++;
-
 	newName = "BOSS_";
 	newName += to_string(BOSS_COUNT);
 	Boss->SetID(newName, BOSS, TOTAL_COUNT);
 	Boss->RandomSpawn(0, 100);
-
-	TOTAL_COUNT++;
 
 	ListOfCharacters.push_back(Tank);
 	ListOfCharacters.push_back(Mage);
 	ListOfCharacters.push_back(Healer);
 	ListOfCharacters.push_back(Boss);
 
-	InitSceneGraph();
+	//Scene graph init
+	this->sceneGraph = new SceneNode();
 	lightEnabled = true;
 }
 
@@ -134,6 +127,8 @@ void SceneManagerCMPlay::Update(double dt)
 
 	KeyDelay = Math::Clamp(KeyDelay += (float)dt, 0.f, 1.f);
 
+	//key updates
+	//******************************************************************************************************
 	if (inputManager->getKey("Up") && KeyDelay >= 1.f)
 	{
 		ViewChoice = Math::Wrap(ViewChoice + 1, 0, ((int)ListOfCharacters.size() - 1));
@@ -146,6 +141,31 @@ void SceneManagerCMPlay::Update(double dt)
 		KeyDelay = 0.0f;
 	}
 
+	if (inputManager->getKey("F1") && KeyDelay >= 1.f)
+	{
+		CreateTANK();
+		KeyDelay = 0.0f;
+	}
+
+	if (inputManager->getKey("F2") && KeyDelay >= 1.f)
+	{
+		CreateMAGE();
+		KeyDelay = 0.0f;
+	}
+
+	if (inputManager->getKey("F3") && KeyDelay >= 1.f)
+	{
+		CreateHEALER();
+		KeyDelay = 0.0f;
+	}
+
+	if (inputManager->getKey("F4") && KeyDelay >= 1.f)
+	{
+		CreateBOSS();
+		KeyDelay = 0.0f;
+	}
+	//******************************************************************************************************
+
 	Vector3 m_CameraFollow = ListOfCharacters[ViewChoice]->GetPosition();
 
 	theDirection = tpCamera.getTarget() - ListOfCharacters[ViewChoice]->GetPosition();
@@ -156,11 +176,6 @@ void SceneManagerCMPlay::Update(double dt)
 
 	tpCamera.UpdatePosition((m_CameraFollow - (theDirection * 15.f)), Vector3(0, 0, 0));
 	//tpCamera.Update(dt);
-
-	//cout << (m_CameraFollow - (theDirection * 15.f)) << endl;
-	//cout << theDirection << endl;
-	//cout << tpCamera.getPosition() << endl;
-	
 
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
@@ -197,7 +212,7 @@ void SceneManagerCMPlay::Update(double dt)
 		}
 	}
 
-
+	UpdateSceneGraph();
 }
 
 void SceneManagerCMPlay::Render()
@@ -361,7 +376,7 @@ void SceneManagerCMPlay::RenderStaticObject()
 	modelStack.Rotate(-90, 1, 0, 0);
 	modelStack.Translate(0, 0, -10);
 	modelStack.Rotate(-90, 0, 0, 1);
-	modelStack.Scale(100.0f, 100.0f, 100.0f);
+	modelStack.Scale(1000.0f, 1000.0f, 1000.0f);
 	Render3DMesh(drawMesh, false);
 	modelStack.PopMatrix();
 }
@@ -371,6 +386,10 @@ void SceneManagerCMPlay::RenderPlayerStats()
 	float m_BillBoard;
 	Mesh* drawMesh = resourceManager.retrieveMesh("FONT");
 	drawMesh->textureID = resourceManager.retrieveTexture("STATUSFONT");
+
+	string count = "Total Entities: " + to_string(TOTAL_COUNT);
+
+	RenderTextOnScreen(drawMesh, count, resourceManager.retrieveColor("Green"), 30.f, 10, 1050, 0);
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
@@ -385,17 +404,6 @@ void SceneManagerCMPlay::RenderPlayerStats()
 		if (!Direction.IsZero())
 		{
 			m_BillBoard = Math::RadianToDegree(atan2(Direction.x, Direction.y));
-			
-		}
-		cout << "Angle: " << m_BillBoard << endl;
-		/*if (m_BillBoard <= 0)
-		{
-			m_BillBoard += 360;
-		}*/
-
-		if (i == 0)
-		{
-			cout << m_BillBoard << endl;
 		}
 
 		modelStack.PushMatrix();
@@ -403,7 +411,25 @@ void SceneManagerCMPlay::RenderPlayerStats()
 		modelStack.Rotate(m_BillBoard, 0, 1, 0);
 		modelStack.Scale(2.f, 2.f, 2.f);
 		RenderText(drawMesh, ListOfCharacters[i]->PrintState(), resourceManager.retrieveColor("White"));	
+
+		float HPBARSCALE = 5.f;
+
+		modelStack.PushMatrix();
+		float newScale = (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
+		modelStack.Translate(0.f, 2.f, 0.01f);
+		modelStack.Scale(newScale, 1, 1);
+		Render3DMesh(resourceManager.retrieveMesh("HPCURRENT"), true);
 		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		modelStack.Translate(0.f,2.f,0.f);
+		modelStack.Scale(HPBARSCALE, 1, 1);
+		Render3DMesh(resourceManager.retrieveMesh("HPMAX"), true);
+		modelStack.PopMatrix();
+
+		modelStack.PopMatrix();
+
+		
 	}
 }
 
@@ -430,21 +456,19 @@ void SceneManagerCMPlay::RenderMobileObject()
 		}
 	}
 
-	modelStack.PushMatrix();
+	/*modelStack.PushMatrix();
 	modelStack.Translate(40, 1, 0);
 	modelStack.Scale(10, 10, 10);
 	Render3DMesh(resourceManager.retrieveMesh("FIREBALL"), false);
-	modelStack.PopMatrix();
+	modelStack.PopMatrix();*/
 
 	FSMApplication();
 	RenderPlayerStats();
 	sceneGraph->Draw(this);
 }
 
-void SceneManagerCMPlay::InitSceneGraph()
+void SceneManagerCMPlay::UpdateSceneGraph()
 {
-	this->sceneGraph = new SceneNode();
-
 	//TEST CODE FOR TWO TANKS
 
 	/*this->Tank = new CTank;
@@ -457,23 +481,68 @@ void SceneManagerCMPlay::InitSceneGraph()
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		if (sceneGraph->GetChildNode(ListOfCharacters[i]->GetID()) == NULL)
 		{
-			AddTANK(ListOfCharacters[i]->GetID());
-		}
-		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
-		{
-			AddMAGE(ListOfCharacters[i]->GetID());
-		}
-		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
-		{
-			AddHEALER(ListOfCharacters[i]->GetID());
-		}
-		else if (ListOfCharacters[i]->GetTYPE() == BOSS)
-		{
-			AddBOSS(ListOfCharacters[i]->GetID());
+			if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+			{
+				AddTANK(ListOfCharacters[i]->GetID());
+			}
+			else if (ListOfCharacters[i]->GetTYPE() == MAGE)
+			{
+				AddMAGE(ListOfCharacters[i]->GetID());
+			}
+			else if (ListOfCharacters[i]->GetTYPE() == HEALER)
+			{
+				AddHEALER(ListOfCharacters[i]->GetID());
+			}
+			else if (ListOfCharacters[i]->GetTYPE() == BOSS)
+			{
+				AddBOSS(ListOfCharacters[i]->GetID());
+			}
 		}
 	}
+}
+
+void SceneManagerCMPlay::CreateTANK(void)
+{
+	this->Tank = new CTank;
+	string newName = "WARRIOR_";
+	newName += to_string(TANK_COUNT);
+	Tank->SetID(newName, WARRIOR, TOTAL_COUNT);
+	Tank->RandomSpawn(0, 100);
+	ListOfCharacters.push_back(Tank);
+
+	cout << TOTAL_COUNT << endl;
+}
+
+void SceneManagerCMPlay::CreateMAGE(void)
+{
+	this->Mage = new CMage;
+	string newName = "MAGE_";
+	newName += to_string(MAGE_COUNT);
+	Mage->SetID(newName, MAGE, TOTAL_COUNT);
+	Mage->RandomSpawn(0, 100);
+	ListOfCharacters.push_back(Mage);
+}
+
+void SceneManagerCMPlay::CreateHEALER(void)
+{
+	this->Healer = new CHealer;
+	string newName = "HEALER_";
+	newName += to_string(TANK_COUNT);
+	Healer->SetID(newName, HEALER, TOTAL_COUNT);
+	Healer->RandomSpawn(0, 100);
+	ListOfCharacters.push_back(Healer);
+}
+
+void SceneManagerCMPlay::CreateBOSS(void)
+{
+	this->Boss = new CBoss;
+	string newName = "BOSS_";
+	newName += to_string(TANK_COUNT);
+	Boss->SetID(newName, BOSS, TOTAL_COUNT);
+	Boss->RandomSpawn(0, 100);
+	ListOfCharacters.push_back(Boss);
 }
 
 void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
@@ -651,6 +720,7 @@ void SceneManagerCMPlay::AddTANK(string ID)
 	sceneGraph->AddChildToChildNode(theCopy, newNode);
 
 	TANK_COUNT++;
+	TOTAL_COUNT++;
 }
 
 void SceneManagerCMPlay::AddMAGE(string ID)
@@ -684,6 +754,7 @@ void SceneManagerCMPlay::AddMAGE(string ID)
 	sceneGraph->AddChildToChildNode(ID, newNode);
 
 	MAGE_COUNT++;
+	TOTAL_COUNT++;
 }
 
 void SceneManagerCMPlay::AddHEALER(string ID)
@@ -717,6 +788,7 @@ void SceneManagerCMPlay::AddHEALER(string ID)
 	sceneGraph->AddChildToChildNode(ID, newNode);
 
 	HEALER_COUNT++;
+	TOTAL_COUNT++;
 }
 
 void SceneManagerCMPlay::AddBOSS(string ID)
@@ -764,4 +836,5 @@ void SceneManagerCMPlay::AddBOSS(string ID)
 	sceneGraph->AddChildToChildNode(ID, newNode);
 
 	BOSS_COUNT++;
+	TOTAL_COUNT++;
 }

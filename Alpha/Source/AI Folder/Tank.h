@@ -18,7 +18,7 @@ private:
 	const float SWORD_TRANSLATE_AMOUNT = 3.f;
 	const float SWORD_TRANSLATE_INIT_AMOUNT = 0.f;
 	const float m_AttackDelay = 1.0f;
-	const float m_SkillDelay = 15.0f;
+	const float m_SkillDelay = 6.0f;
 	const float m_TauntDuration = 3.0f;
 
 	bool m_SwordSwing;

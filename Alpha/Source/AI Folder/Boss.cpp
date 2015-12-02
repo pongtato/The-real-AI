@@ -50,6 +50,7 @@ float CBoss::GetSkillRadius(void)
 }
 void CBoss::TickTimer(double dt)
 {
+	m_StateChangeTimer += dt;
 	TargetChangeTimer += (float)dt;
 	if (m_LastAttackTimer <= m_AttackSpeed)
 		m_LastAttackTimer += (float)dt;
@@ -150,7 +151,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
+		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
@@ -171,16 +172,19 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			{
 				//Do attack 
 				UpdateAttacking(ListOfEnemies[CurrentTarget], dt);
+				m_StateChangeTimer = 0.0f;
 			}
 			else
 			{
 				TakingAction = false;
-				state = MOVE;
 			}
 		}
 		else
 		{
-			state = MOVE;
+			if (m_StateChangeTimer >= StateChangeDelay)
+			{
+				state = MOVE;
+			}
 		}
 		break;
 	case RETREAT:

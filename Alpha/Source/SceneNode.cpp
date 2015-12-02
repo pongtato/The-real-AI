@@ -82,12 +82,17 @@ SceneNode* SceneNode::GetChildNode(string childName)
 		{
 			resultNode = childNodes[i]->GetChildNode(childName);
 
-			if (resultNode->gameObject3D != NULL)
+			if (resultNode != NULL)
 			{
-				return resultNode;
+				if (resultNode->gameObject3D != NULL)
+				{
+					return resultNode;
+				}
 			}
 		}
 	}
+
+	return NULL;
 }
 
 GameObject3D* SceneNode::GetGameObject()

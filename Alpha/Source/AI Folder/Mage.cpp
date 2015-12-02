@@ -66,7 +66,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
+		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
@@ -86,7 +86,8 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do attack 
-				UpdateAttacking(Boss,dt);
+				UpdateAttacking(Boss, dt);
+				m_StateChangeTimer = 0.0f;
 			}
 			else
 			{
@@ -95,15 +96,23 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		}
 		else
 		{
-			state = MOVE;
+			if (m_StateChangeTimer >= StateChangeDelay)
+			{
+				state = MOVE;
+			}
 		}
 		break;
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
+			m_StateChangeTimer = 0.0f;
 			Retreat(DangerPosition, dt);
 		}
-		else
+		else if (m_StateChangeTimer <= StateChangeDelay)
+		{
+			Retreat(DangerPosition, dt);
+		}
+		else 
 		{
 			state = ATTACK;
 		}
@@ -186,6 +195,7 @@ float CMage::GetChildTranslation(int ChildID)
 void CMage::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
+	m_StateChangeTimer += dt;
 }
 
 void CMage::CustomStates(double dt)

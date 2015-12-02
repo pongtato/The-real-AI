@@ -63,7 +63,6 @@ string CHealer::PrintState(void)
 
 void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
-	float lowestHP = 0;
 	CEntity* target = NULL;
 	DangerPosition = newDangerPosition;
 	//Face the targets position
@@ -73,9 +72,13 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	//Go through list for lowest hp
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetHpPercent() > lowestHP && ListOfCharacters[i]->GetTYPE() != "BOSS")
+		if (target == NULL)
 		{
-			lowestHP = ListOfCharacters[i]->GetHpPercent();
+			TargetPosition = ListOfCharacters[i]->GetPosition();
+			target = ListOfCharacters[i];
+		}
+		else if (ListOfCharacters[i]->GetHpPercent() < target->GetHpPercent() && ListOfCharacters[i]->GetTYPE() != "BOSS")
+		{
 			TargetPosition = ListOfCharacters[i]->GetPosition();
 			target = ListOfCharacters[i];
 		}
@@ -89,7 +92,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
+		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
@@ -110,7 +113,10 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 			{
 				//Do Healing
 				if (target)
-				UpdateAttacking(target,dt);
+				{
+					UpdateAttacking(target, dt);
+				}
+				m_StateChangeTimer = 0.0f;
 			}
 			else
 			{
@@ -119,11 +125,19 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		}
 		else
 		{
-			state = MOVE;
+			if (m_StateChangeTimer >= StateChangeDelay)
+			{
+				state = MOVE;
+			}
 		}
 		break;
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
+		{
+			m_StateChangeTimer = 0.0f;
+			Retreat(DangerPosition, dt);
+		}
+		else if (m_StateChangeTimer <= StateChangeDelay)
 		{
 			Retreat(DangerPosition, dt);
 		}
@@ -162,7 +176,10 @@ void CHealer::UpdateAttacking(CEntity* target ,double dt)
 
 	else if (m_RodRotation <= ROD_SWING_INIT_AMOUNT)
 	{
-		target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() + m_Damage); // Heal the target
+		if (target->GetHpPercent() < 100)
+		{
+			target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() + m_Damage); // Heal the target
+		}
 		m_LastAttackTimer = 0.0f;
 		TakingAction = false;
 		m_RodSwing = false;
@@ -205,6 +222,7 @@ float CHealer::GetChildTranslation(int ChildID)
 void CHealer::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
+	m_StateChangeTimer += dt;
 }
 
 void CHealer::CustomStates(double dt)

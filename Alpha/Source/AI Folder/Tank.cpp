@@ -61,7 +61,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange - 5.f < (TargetPosition - Position).Length())
+		if (m_AttackRange < (TargetPosition - Position).Length())
 		{
 			Move(TargetPosition, dt);
 		}
@@ -86,6 +86,13 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			TakingAction = true;
 		}
 
+		if (AttackCheck(ListOfCharacters))
+		{
+			m_isBlock = true;
+			state = BLOCK;
+		}
+
+
 		if (TakingAction)
 		{
 			if (m_LastAttackTimer >= m_AttackDelay)
@@ -98,10 +105,17 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 						UpdateAttacking(ListOfCharacters[i],dt);
 					}
 				}
+				m_StateChangeTimer = 0.0f;
 			}
 			else
 			{
 				TakingAction = false;
+			}
+		}
+		else
+		{
+			if (m_StateChangeTimer >= StateChangeDelay)
+			{
 				state = MOVE;
 			}
 		}
@@ -145,6 +159,11 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		break;
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
+		{
+			m_StateChangeTimer = 0.0f;
+			Retreat(DangerPosition, dt);
+		}
+		else if (m_StateChangeTimer <= StateChangeDelay)
 		{
 			Retreat(DangerPosition, dt);
 		}
@@ -198,6 +217,7 @@ void CTank::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
 	m_Cooldown += dt;
+	m_StateChangeTimer += dt;
 }
 
 void CTank::UpdateAttacking(CEntity* target, double dt)

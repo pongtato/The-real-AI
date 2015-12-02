@@ -15,7 +15,7 @@ private:
 	const float ROD_SWING_SPEED = 1000.f;
 	const float ROD_SWING_ROT_AMOUNT = 90.f;
 	const float ROD_SWING_INIT_AMOUNT = 0.f;
-	const float m_AttackDelay = 1.0f;
+	const float m_AttackDelay = 5.0f;
 
 	bool m_RodSwing;
 	

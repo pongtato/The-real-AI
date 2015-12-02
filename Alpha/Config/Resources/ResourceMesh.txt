@@ -108,6 +108,16 @@
 		[Radius] 1
 		
 	}
+	{
+		[NAME] HPCURRENT
+		[ColorName] Green
+		[Type] Quad
+	}
+	{
+		[NAME] HPMAX
+		[ColorName] Red
+		[Type] Quad
+	}
 }
 
 # Types available

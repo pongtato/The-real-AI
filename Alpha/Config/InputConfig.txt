@@ -35,6 +35,26 @@
 		# [Key] VK_S
 	}
 	{
+		[NAME] F1
+		[Key] 0x70
+		# [Key] VK_F1
+	}
+	{
+		[NAME] F2
+		[Key] 0x71
+		# [Key] VK_F2
+	}
+	{
+		[NAME] F3
+		[Key] 0x72
+		# [Key] VK_F3
+	}
+	{
+		[NAME] F4
+		[Key] 0x73
+		# [Key] VK_F4
+	}
+	{
 		[NAME] Left
 		[Key] 0x41
 		# [Key] VK_A

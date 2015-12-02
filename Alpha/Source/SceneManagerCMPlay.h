@@ -3,6 +3,7 @@
 
 #include "SceneManagerGameplay.h"
 #include "SceneNode.h"
+#include <windows.h>
 #include "AI Folder\Tank.h"
 #include "AI Folder\Healer.h"
 #include "AI Folder\Mage.h"
@@ -54,7 +55,7 @@ public:
 	void BindShaders();
 	void InitShader();
 
-	void InitSceneGraph();
+	void UpdateSceneGraph();
 	void FSMApplication();
 
 	void RenderLight();
@@ -67,6 +68,11 @@ public:
 	void AddMAGE(string ID);
 	void AddHEALER(string ID);
 	void AddBOSS(string ID);
+
+	void CreateTANK(void);
+	void CreateMAGE(void);
+	void CreateHEALER(void);
+	void CreateBOSS(void);
 
 	void TANK_NODE(CEntity* theTank);
 	void MAGE_NODE(CEntity* theMage);
