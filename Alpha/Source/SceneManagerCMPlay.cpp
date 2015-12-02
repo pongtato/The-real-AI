@@ -430,7 +430,7 @@ void SceneManagerCMPlay::RenderMobileObject()
 	}
 
 	modelStack.PushMatrix();
-	modelStack.Translate(0, 1, 0);
+	modelStack.Translate(40, 1, 0);
 	modelStack.Scale(10, 10, 10);
 	Render3DMesh(resourceManager.retrieveMesh("FIREBALL"), false);
 	modelStack.PopMatrix();

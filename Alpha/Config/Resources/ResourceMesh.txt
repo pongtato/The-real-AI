@@ -104,6 +104,7 @@
 		[ColorName] Yellow
 		[Type] Sphere
 		[Slices] 36
+		[Stacks] 16
 		[Radius] 1
 		
 	}

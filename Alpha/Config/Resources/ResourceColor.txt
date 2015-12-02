@@ -19,6 +19,10 @@
 		[Color] 0, 1, 0
 	}
 	{
+		[NAME] Yellow
+		[Color] 1, 1, 0
+	}
+	{
 		[NAME] Blue
 		[Color] 0, 0, 1
 	}
