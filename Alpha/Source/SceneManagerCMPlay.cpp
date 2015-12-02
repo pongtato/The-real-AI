@@ -384,12 +384,12 @@ void SceneManagerCMPlay::RenderPlayerStats()
 	
 		if (!Direction.IsZero())
 		{
-			m_BillBoard = Math::RadianToDegree(atan2f(Direction.y, Direction.x));
+			m_BillBoard = Math::RadianToDegree(atan2f(Direction.y, Direction.x)) + 90.f;
 		}
 
 		if (m_BillBoard <= 0)
 		{
-			//m_BillBoard += 360;
+			m_BillBoard += 360;
 		}
 
 		if (i == 0)
