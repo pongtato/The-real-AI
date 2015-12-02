@@ -91,6 +91,22 @@
 		[Slices] 36
 		[Radius] 1
 	}
+	{
+		[NAME] CIRCLE_RED
+		[ColorName] Red
+		[Type] Circle
+		[Slices] 36
+		[Radius] 1
+		
+	}
+	{
+		[NAME] FIREBALL
+		[ColorName] Yellow
+		[Type] Sphere
+		[Slices] 36
+		[Radius] 1
+		
+	}
 }
 
 # Types available

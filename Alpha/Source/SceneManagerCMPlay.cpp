@@ -408,12 +408,31 @@ void SceneManagerCMPlay::RenderPlayerStats()
 
 void SceneManagerCMPlay::RenderMobileObject()
 {
+	//Mesh* drawMesh = resourceManager.retrieveMesh("CIRCLE_RED");
 	//template circle
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+		{
+			CBoss* temp = (CBoss*)ListOfCharacters[i];
+			if (temp->GetCastingSkillBool())
+			{
+
+				modelStack.PushMatrix();
+				modelStack.Translate(temp->GetPosition().x, temp->GetPosition().y, temp->GetPosition().z);
+				modelStack.Rotate(-90, 1, 0, 0);
+				modelStack.Scale(temp->GetSkillRadius(), temp->GetSkillRadius(), temp->GetSkillRadius());
+				Render3DMesh(resourceManager.retrieveMesh("CIRCLE_RED"), true);
+				modelStack.PopMatrix();
+			}
+		}
+	}
+
 	modelStack.PushMatrix();
-	modelStack.Translate(20, 0, 0);
-	modelStack.Rotate(-90, 1, 0, 0);
-	modelStack.Scale(10.f, 10.f, 10.f);
-	Render3DMesh(resourceManager.retrieveMesh("CIRCLE"), true);
+	modelStack.Translate(0, 1, 0);
+	modelStack.Scale(10, 10, 10);
+	Render3DMesh(resourceManager.retrieveMesh("FIREBALL"), false);
 	modelStack.PopMatrix();
 
 	FSMApplication();
