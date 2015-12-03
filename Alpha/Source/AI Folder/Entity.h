@@ -4,6 +4,7 @@
 #include <iostream>
 #include "MyMath.h"
 #include "Vector3.h"
+#include "Vector2.h"
 #include <time.h>
 #include <stdlib.h>
 #include <vector>
@@ -54,12 +55,13 @@ public:
 	int GetIDNO(void);
 	int GetTargetIDNO(void);
 	Vector3 GetPosition();
+	Vector3 GetVelocity();
 	string GetID(void);
 	string GetTYPE(void);
 	Targets GetTargetID(void);
 
-	void Move(Vector3 TargetDestination, double dt);
-	void Retreat(Vector3 TargetDestination, double dt);
+	void Move(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt);
+	void Retreat(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt);
 
 	void Attack(void);
 	virtual void UpdateAttacking(CEntity*, double dt);
@@ -67,6 +69,10 @@ public:
 
 	virtual void RunFSM(double dt, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	virtual void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
+
+	virtual Vector3 ComputeAlignment(vector<CEntity*> ListOfCharacters);
+	virtual Vector3 ComputeCohesion(vector<CEntity*> ListOfCharacters);
+	virtual Vector3 ComputeSeperation(vector<CEntity*> ListOfCharacters);
 
 	virtual int Probability(int lowerLimit, int upperLimit);
 
@@ -98,14 +104,20 @@ protected:
 	float m_LastAttackTimer;// Time of last known attack
 	float m_Cooldown;		// Skill cooldown of this AI
 	float m_AttackRange;	// Attack Range of this AI
+	float m_AttackRangeOffset;	// Offset to move closer before commencing attack
 	float m_DangerZone;		// Caution zone of this AI
 	float m_InitialRotation;// Where to reset the child node to etc Sword starting point
+	const float m_alignmentWeight = 1.0f;
+	const float m_cohesionWeight = 1.0f;
+	const float m_separationWeight = 1.0f;
+	const float m_flockZone = 1000.f;
 
 	bool IsTarget;
 
 	Vector3 Position;
 	Vector3 TargetPosition;
 	Vector3 DangerPosition;
+	Vector3 Direction;
 
 	string ClassName;
 	string ID;

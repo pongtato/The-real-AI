@@ -11,7 +11,7 @@ CHealer::CHealer()
 	targetID = HEALER;
 	m_Damage = 10.f;
 	m_HP = 100;
-	m_Curent_HP = m_HP;
+	m_Curent_HP = 20;
 
 	Position.Set(
 		Probability(0, 100),
@@ -23,6 +23,7 @@ CHealer::CHealer()
 
 	//Attack Init
 	m_AttackRange = 45.f;
+	m_AttackRangeOffset = (m_AttackRange - 5.f);
 	m_AttackSpeed = 1.0f;
 	m_LastAttackTimer = m_AttackDelay;
 
@@ -48,6 +49,10 @@ string CHealer::PrintState(void)
 		break;
 	case CHealer::HEAL:
 		DummyText = ClassName + "HEAL";
+		return DummyText;
+		break;
+	case CHealer::HEAL_SELF:
+		DummyText = ClassName + "HEAL SELF";
 		return DummyText;
 		break;
 	case CHealer::RETREAT:
@@ -86,22 +91,27 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 
 	if (m_DangerZone > (Position - DangerPosition).Length())
 	{
+		m_RodRotation = ROD_SWING_INIT_AMOUNT;
 		state = RETREAT;
 	}
 
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRangeOffset < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition, dt);
+			Move(ListOfCharacters,TargetPosition, dt);
+		}
+		else if ( this->GetHpPercent() > 25)
+		{
+			state = HEAL;
 		}
 		else
 		{
-			state = ATTACK;
+			state = HEAL_SELF;
 		}
 		break;
-	case ATTACK:
+	case HEAL:
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			TakingAction = true;
@@ -131,15 +141,41 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 			}
 		}
 		break;
+	case HEAL_SELF:
+
+		cout << GetHpPercent() << endl;
+
+		if (GetHpPercent() <= 25)
+		{
+			TakingAction = true;
+			if (m_LastAttackTimer >= m_AttackDelay)
+			{
+				//Do Healing
+				UpdateAttacking(this, dt);
+				m_StateChangeTimer = 0.0f;
+			}
+			else
+			{
+				TakingAction = false;
+			}
+		}
+		else
+		{
+			if (m_StateChangeTimer >= StateChangeDelay)
+			{
+				state = MOVE;
+			}
+		}
+		break;
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
 			m_StateChangeTimer = 0.0f;
-			Retreat(DangerPosition, dt);
+			Retreat(ListOfCharacters,DangerPosition, dt);
 		}
 		else if (m_StateChangeTimer <= StateChangeDelay)
 		{
-			Retreat(DangerPosition, dt);
+			Retreat(ListOfCharacters,DangerPosition, dt);
 		}
 		else
 		{

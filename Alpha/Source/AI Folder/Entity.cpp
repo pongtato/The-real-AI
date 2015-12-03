@@ -9,6 +9,7 @@ CEntity::CEntity()
 	m_Rotation = 0.0f;
 	m_LastAttackTimer = 0.f;
 	m_StateChangeTimer = 0.f;
+	Direction.SetZero();
 }
 
 
@@ -118,21 +119,35 @@ float CEntity::EntityTranslation(double dt, float speed, float MaxTranslate, flo
 	}
 }
 
-void CEntity::Move(Vector3 TargetDestination, double dt)
+void CEntity::Move(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt)
 {
-	Vector3 Direction;
+	Vector3 Alignment = ComputeAlignment(ListOfCharacters);
+	Vector3 Cohesion = ComputeCohesion(ListOfCharacters);
+	Vector3 Seperation = ComputeSeperation(ListOfCharacters);
 
 	// Get the direction
-	Direction = (TargetDestination - Position).Normalized();
+	Direction = (TargetDestination - Position);
+
+	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
+
+	Direction.Normalize();
+
 	Position += Direction * m_MoveSpeed * dt;
 }
 
-void CEntity::Retreat(Vector3 TargetDestination, double dt)
+void CEntity::Retreat(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt)
 {
-	Vector3 Direction;
+	Vector3 Alignment = ComputeAlignment(ListOfCharacters);
+	Vector3 Cohesion = ComputeCohesion(ListOfCharacters);
+	Vector3 Seperation = ComputeSeperation(ListOfCharacters);
 
 	// Get the direction
 	Direction = (Position - TargetDestination).Normalized();
+
+	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
+
+	Direction.Normalize();
+	
 	Position += Direction * m_RunSpeed * dt;
 }
 
@@ -143,82 +158,12 @@ void CEntity::Attack(void)
 
 void CEntity::RunFSM(double dt, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
-	switch (state)
-	{
-	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
-		{
-			Move(TargetPosition, dt);
-		}
-		else 
-		{
-			state = ATTACK;
-		}
-		break;
-	case ATTACK:
-		if (m_AttackRange >= (TargetPosition - Position).Length())
-		{
-			//Do attack 
-
-		}
-		else
-		{
-			state = MOVE;
-		}
-		break;
-	case RETREAT:
-		if (m_DangerZone > (Position - DangerPosition).Length())
-		{
-			Retreat(DangerPosition, dt);
-		}
-		else
-		{
-			state = ATTACK;
-		}
-		break;
-	default:
-		break;
-	}
+	
 }
 
 void CEntity::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
-	switch (state)
-	{
-	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
-		{
-			Move(TargetPosition, dt);
-		}
-		else
-		{
-			state = ATTACK;
-		}
-		break;
-	case ATTACK:
-		if (m_AttackRange >= (TargetPosition - Position).Length())
-		{
-			//Do attack 
-
-		}
-		else
-		{
-			state = MOVE;
-		}
-		break;
-	case RETREAT:
-		if (m_DangerZone > (Position - DangerPosition).Length())
-		{
-			Retreat(DangerPosition, dt);
-		}
-		else
-		{
-			state = ATTACK;
-		}
-		break;
-	default:
-		break;
-	}
+	
 }
 
 void CEntity::UpdateAttacking(CEntity*, double dt)
@@ -273,3 +218,127 @@ bool CEntity::DamageNullfiy(void)
 	return false;
 }
 
+Vector3 CEntity::GetVelocity()
+{
+	return this->Direction;
+}
+
+Vector3 CEntity::ComputeAlignment(vector<CEntity*> ListOfCharacters)
+{
+	Vector3 newPoint;
+	newPoint.SetZero();
+	int neighborCount = 0;
+
+	if (this->TYPE == "BOSS")
+	{
+		//return newPoint;
+	}
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetID() != ID)
+		{
+			if ((this->Position - ListOfCharacters[i]->GetPosition()).Length() < m_flockZone)
+			{
+				newPoint += ListOfCharacters[i]->GetVelocity();
+				neighborCount++;
+			}
+		}
+	}
+
+	if (neighborCount == 0)
+		return newPoint;
+
+	newPoint.x /= neighborCount;
+	newPoint.z /= neighborCount;
+
+	Vector2 temp;
+	temp.Set(newPoint.x, newPoint.z);
+	temp.Normalized();
+
+	newPoint.Set(temp.x, 0, temp.y);
+
+	return newPoint;
+}
+
+Vector3 CEntity::ComputeCohesion(vector<CEntity*> ListOfCharacters)
+{
+	Vector3 newPoint;
+	newPoint.SetZero();
+	int neighborCount = 0;
+
+	if (this->TYPE == "BOSS")
+	{
+		//return newPoint;
+	}
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetID() != ID)
+		{
+			if ((this->Position - ListOfCharacters[i]->GetPosition()).Length() < m_flockZone)
+			{
+				newPoint += ListOfCharacters[i]->GetPosition();
+				neighborCount++;
+			}
+		}
+	}
+
+	if (neighborCount == 0)
+		return newPoint;
+
+	newPoint.x /= neighborCount;
+	newPoint.z /= neighborCount;
+
+	newPoint -= this->Position;
+
+	Vector2 temp;
+	temp.Set(newPoint.x, newPoint.z);
+	temp.Normalized();
+
+	newPoint.Set(temp.x, 0, temp.y);
+
+	return newPoint;
+}
+
+Vector3 CEntity::ComputeSeperation(vector<CEntity*> ListOfCharacters)
+{
+	Vector3 newPoint;
+	newPoint.SetZero();
+	int neighborCount = 0;
+
+	if (this->TYPE == "BOSS")
+	{
+		//return newPoint;
+	}
+
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetID() != ID)
+		{
+			if ((this->Position - ListOfCharacters[i]->GetPosition()).Length() < m_flockZone)
+			{
+				newPoint += ListOfCharacters[i]->GetPosition();
+				newPoint -= this->Position;
+				neighborCount++;
+			}
+		}
+	}
+
+	if (neighborCount == 0)
+		return newPoint;
+
+	newPoint.x /= neighborCount;
+	newPoint.z /= neighborCount;
+
+	newPoint.x *= -1.f;
+	newPoint.z *= -1.f;
+
+	Vector2 temp;
+	temp.Set(newPoint.x, newPoint.z);
+	temp.Normalized();
+
+	newPoint.Set(temp.x, 0, temp.y);
+
+	return newPoint;
+}

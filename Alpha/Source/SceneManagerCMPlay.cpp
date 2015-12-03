@@ -101,7 +101,7 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 
 	//Scene graph init
 	this->sceneGraph = new SceneNode();
-	lightEnabled = true;
+	lightEnabled = false;
 }
 
 void SceneManagerCMPlay::Config()
@@ -125,43 +125,47 @@ void SceneManagerCMPlay::Update(double dt)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
 
-	KeyDelay = Math::Clamp(KeyDelay += (float)dt, 0.f, 1.f);
+	KeyDelay = Math::Clamp(KeyDelay += (float)dt, 0.f, THEDELAY);
 
 	//key updates
 	//******************************************************************************************************
-	if (inputManager->getKey("Up") && KeyDelay >= 1.f)
+	if (inputManager->getKey("Up") && KeyDelay >= THEDELAY)
 	{
 		ViewChoice = Math::Wrap(ViewChoice + 1, 0, ((int)ListOfCharacters.size() - 1));
 		KeyDelay = 0.0f;
 	}
 
-	if (inputManager->getKey("Down") && KeyDelay >= 1.f)
+	if (inputManager->getKey("Down") && KeyDelay >= THEDELAY)
 	{
 		ViewChoice = Math::Wrap(ViewChoice - 1, 0, ((int)ListOfCharacters.size() - 1));
 		KeyDelay = 0.0f;
 	}
 
-	if (inputManager->getKey("F1") && KeyDelay >= 1.f)
+	if (inputManager->getKey("F1") && KeyDelay >= THEDELAY)
 	{
 		CreateTANK();
+		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 
-	if (inputManager->getKey("F2") && KeyDelay >= 1.f)
+	if (inputManager->getKey("F2") && KeyDelay >= THEDELAY)
 	{
 		CreateMAGE();
+		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 
-	if (inputManager->getKey("F3") && KeyDelay >= 1.f)
+	if (inputManager->getKey("F3") && KeyDelay >= THEDELAY)
 	{
 		CreateHEALER();
+		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 
-	if (inputManager->getKey("F4") && KeyDelay >= 1.f)
+	if (inputManager->getKey("F4") && KeyDelay >= THEDELAY)
 	{
 		CreateBOSS();
+		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 	//******************************************************************************************************
@@ -510,6 +514,7 @@ void SceneManagerCMPlay::CreateTANK(void)
 	newName += to_string(TANK_COUNT);
 	Tank->SetID(newName, WARRIOR, TOTAL_COUNT);
 	Tank->RandomSpawn(0, 100);
+	Tank->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 	ListOfCharacters.push_back(Tank);
 
 	cout << TOTAL_COUNT << endl;
@@ -522,6 +527,7 @@ void SceneManagerCMPlay::CreateMAGE(void)
 	newName += to_string(MAGE_COUNT);
 	Mage->SetID(newName, MAGE, TOTAL_COUNT);
 	Mage->RandomSpawn(0, 100);
+	Mage->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 	ListOfCharacters.push_back(Mage);
 }
 
@@ -529,9 +535,10 @@ void SceneManagerCMPlay::CreateHEALER(void)
 {
 	this->Healer = new CHealer;
 	string newName = "HEALER_";
-	newName += to_string(TANK_COUNT);
+	newName += to_string(HEALER_COUNT);
 	Healer->SetID(newName, HEALER, TOTAL_COUNT);
 	Healer->RandomSpawn(0, 100);
+	Healer->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 	ListOfCharacters.push_back(Healer);
 }
 
@@ -539,7 +546,7 @@ void SceneManagerCMPlay::CreateBOSS(void)
 {
 	this->Boss = new CBoss;
 	string newName = "BOSS_";
-	newName += to_string(TANK_COUNT);
+	newName += to_string(BOSS_COUNT);
 	Boss->SetID(newName, BOSS, TOTAL_COUNT);
 	Boss->RandomSpawn(0, 100);
 	ListOfCharacters.push_back(Boss);

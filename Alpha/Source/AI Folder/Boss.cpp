@@ -33,6 +33,7 @@ CBoss::CBoss()
 
 	//Attack Init
 	m_AttackRange = 15.f;
+	m_AttackRangeOffset = (m_AttackRange - 5.f);
 	m_AttackSpeed = 1.0f;
 	m_LastAttackTimer = m_AttackDelay;
 
@@ -129,6 +130,18 @@ void CBoss::ChooseTarget(vector<CEntity*> ListOfEnemies)
 
 void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	// BOSS RESET ---------------
+	if (m_Curent_HP <= 0)
+	{
+		m_Curent_HP = m_HP;
+		Position.Set(
+			Probability(0, 100),
+			0.1f,
+			Probability(0, 100));
+	}
+	// --------------------------
+
+
 	//Boss event timer
 	TickTimer(dt);
 	//Face the targets position
@@ -151,9 +164,9 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRangeOffset < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition, dt);
+			Move(ListOfEnemies,TargetPosition, dt);
 		}
 		else if (m_LastAttackTimer >= m_AttackDelay)
 		{
@@ -190,7 +203,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	case RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
-			Retreat(DangerPosition, dt);
+			Retreat(ListOfEnemies,DangerPosition, dt);
 		}
 		else
 		{
@@ -200,7 +213,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 	case RESET:
 		if ((TargetPosition - Position).Length() > 1.f)
 		{
-			Move(InitialPos, dt);
+			Move(ListOfEnemies,InitialPos, dt);
 		}
 		else
 		{
@@ -218,7 +231,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			m_IsCastingSkill = false;
 			m_CastingTimer = 0;
 			m_TotalDamageTaken = 0; // Reset the damage taken threshold
-			m_Skill_Range_Radius = 1.f;
+
 			// Damage every enemy around the Boss within a radius
 			for (unsigned short i = 0; i < ListOfEnemies.size(); ++i)
 			{
@@ -234,7 +247,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 #endif
 				}
 			}
-
+			m_Skill_Range_Radius = 1.f;
 
 			state = MOVE;
 		}

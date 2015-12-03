@@ -9,7 +9,6 @@ CTank::CTank()
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = TANK;
 	targetID = TANK;
-	m_AttackSpeed = 1.0f;
 	m_Damage = 10.f;
 
 	m_HP = 100;
@@ -29,6 +28,7 @@ CTank::CTank()
 
 	//Attack Init
 	m_AttackRange = 15.0f;
+	m_AttackRangeOffset = (m_AttackRange - 5.f);
 	m_AttackSpeed = 1.0f;
 	m_LastAttackTimer = m_AttackDelay;
 
@@ -53,17 +53,17 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 	FaceTarget();
 	TickTimer(dt);
 
-	if (IsTarget)
+	if (IsTarget && GetHpPercent() <= 25)
 	{
-		//state = RETREAT;
+		state = RETREAT;
 	}
 
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRangeOffset < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition, dt);
+			Move(ListOfCharacters,TargetPosition, dt);
 		}
 		else if (m_Cooldown >= m_SkillDelay && TauntCheck(ListOfCharacters))
 		{
@@ -86,13 +86,6 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			TakingAction = true;
 		}
 
-		if (AttackCheck(ListOfCharacters))
-		{
-			m_isBlock = true;
-			state = BLOCK;
-		}
-
-
 		if (TakingAction)
 		{
 			if (m_LastAttackTimer >= m_AttackDelay)
@@ -106,6 +99,11 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 					}
 				}
 				m_StateChangeTimer = 0.0f;
+			}
+			else if (AttackCheck(ListOfCharacters))
+			{
+				m_isBlock = true;
+				state = BLOCK;
 			}
 			else
 			{
@@ -158,16 +156,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		}
 		break;
 	case RETREAT:
-		if (m_DangerZone > (Position - DangerPosition).Length())
-		{
-			m_StateChangeTimer = 0.0f;
-			Retreat(DangerPosition, dt);
-		}
-		else if (m_StateChangeTimer <= StateChangeDelay)
-		{
-			Retreat(DangerPosition, dt);
-		}
-		else
+		if (GetHpPercent() > 25)
 		{
 			state = ATTACK;
 		}

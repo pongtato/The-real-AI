@@ -25,6 +25,7 @@ CMage::CMage()
 
 	//Attack Init
 	m_AttackRange = 45.f;
+	m_AttackRangeOffset = (m_AttackRange - 5.f);
 	m_AttackSpeed = 1.0f;
 	m_LastAttackTimer = m_AttackDelay;
 
@@ -60,15 +61,16 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 
 	if (m_DangerZone > (Position - DangerPosition).Length())
 	{
+		m_StaffRotation = STAFF_SWING_INIT_AMOUNT;
 		state = RETREAT;
 	}
 
 	switch (state)
 	{
 	case MOVE:
-		if (m_AttackRange < (TargetPosition - Position).Length())
+		if (m_AttackRangeOffset < (TargetPosition - Position).Length())
 		{
-			Move(TargetPosition, dt);
+			Move(ListOfEnemies,TargetPosition, dt);
 		}
 		else
 		{
@@ -106,11 +108,11 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
 			m_StateChangeTimer = 0.0f;
-			Retreat(DangerPosition, dt);
+			Retreat(ListOfEnemies,DangerPosition, dt);
 		}
 		else if (m_StateChangeTimer <= StateChangeDelay)
 		{
-			Retreat(DangerPosition, dt);
+			Retreat(ListOfEnemies,DangerPosition, dt);
 		}
 		else 
 		{
