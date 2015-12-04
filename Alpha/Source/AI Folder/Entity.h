@@ -89,6 +89,8 @@ public:
 	virtual string PrintState(void) = 0;
 	virtual int GetState(void) = 0;
 
+	Vector2 seek(Vector2 target);
+
 protected:
 	int state;
 	int m_HP;				// Max HP of this AI
@@ -107,10 +109,13 @@ protected:
 	float m_AttackRangeOffset;	// Offset to move closer before commencing attack
 	float m_DangerZone;		// Caution zone of this AI
 	float m_InitialRotation;// Where to reset the child node to etc Sword starting point
-	const float m_alignmentWeight = 1.0f;
-	const float m_cohesionWeight = 1.0f;
-	const float m_separationWeight = 1.0f;
-	const float m_flockZone = 1000.f;
+
+	const float m_alignmentWeight = 0.1f;
+	const float m_cohesionWeight = 0.1f;
+	const float m_separationWeight = 2.0f;
+	const float m_seperationZone = 7.5f;
+	const float m_flockZone = 15.0f;
+	const float m_maxforce = 1.0f;
 
 	bool IsTarget;
 

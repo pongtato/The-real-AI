@@ -121,28 +121,38 @@ float CEntity::EntityTranslation(double dt, float speed, float MaxTranslate, flo
 
 void CEntity::Move(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt)
 {
+	// Get the direction
+	Direction = (TargetDestination - Position);
+
 	Vector3 Alignment = ComputeAlignment(ListOfCharacters);
 	Vector3 Cohesion = ComputeCohesion(ListOfCharacters);
 	Vector3 Seperation = ComputeSeperation(ListOfCharacters);
 
-	// Get the direction
-	Direction = (TargetDestination - Position);
+	Direction.Normalize() * m_MoveSpeed;
 
 	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
 
-	Direction.Normalize();
-
 	Position += Direction * m_MoveSpeed * dt;
+
+	if (Position.x > 200.f)
+	{
+		Position.x = -200.f;
+	}
+
+	Position.x = Math::Wrap(Position.x, -100.f, 100.f);
+	Position.z = Math::Wrap(Position.z, -100.f, 100.f);
+
+	Direction.SetZero();
 }
 
 void CEntity::Retreat(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt)
 {
+	// Get the direction
+	Direction = (Position - TargetDestination).Normalized();
+
 	Vector3 Alignment = ComputeAlignment(ListOfCharacters);
 	Vector3 Cohesion = ComputeCohesion(ListOfCharacters);
 	Vector3 Seperation = ComputeSeperation(ListOfCharacters);
-
-	// Get the direction
-	Direction = (Position - TargetDestination).Normalized();
 
 	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
 
@@ -223,122 +233,169 @@ Vector3 CEntity::GetVelocity()
 	return this->Direction;
 }
 
+Vector2 CEntity::seek(Vector2 target)
+{
+	Vector2 PositionCopy = Vector2(Position.x, Position.z);
+	Vector2 direction = target - PositionCopy;
+	if (!direction.IsZero())
+	{
+		direction = direction.Normalized();
+		direction *= m_MoveSpeed;
+	}
+
+	Vector2 DirectionCopy = Vector2(Direction.x, Direction.z);
+	Vector2 steer = direction - DirectionCopy;
+	//Math::Clamp(steer.Length(), 0.f, maxforce);
+
+	if (steer.Length() >= m_maxforce)
+	{
+		steer *= (m_maxforce / steer.Length());
+	}
+
+	return steer;
+}
+
 Vector3 CEntity::ComputeAlignment(vector<CEntity*> ListOfCharacters)
 {
-	Vector3 newPoint;
-	newPoint.SetZero();
-	int neighborCount = 0;
+	Vector2 sum;
+	int count = 0;
 
 	if (this->TYPE == "BOSS")
 	{
-		//return newPoint;
+		return Vector3(0, 0, 0);
 	}
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetID() != ID)
+		if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
-			if ((this->Position - ListOfCharacters[i]->GetPosition()).Length() < m_flockZone)
+			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
+			if (distance < m_flockZone)
 			{
-				newPoint += ListOfCharacters[i]->GetVelocity();
-				neighborCount++;
+				Vector2 VelCopy = Vector2(ListOfCharacters[i]->GetVelocity().x, ListOfCharacters[i]->GetVelocity().z);
+				sum += VelCopy;
+				count++;
 			}
 		}
 	}
 
-	if (neighborCount == 0)
-		return newPoint;
+	if (count > 0)
+	{
+		sum.x /= (float)count;
+		sum.y /= (float)count;
+		if (!sum.IsZero())
+		{
+			sum = sum.Normalized();
+			sum *= m_MoveSpeed;
+		}
+		Vector2 DirectionCopy = Vector2(Direction.x, Direction.z);
+		Vector2 steer = sum - DirectionCopy;
 
-	newPoint.x /= neighborCount;
-	newPoint.z /= neighborCount;
+		if (steer.Length() >= m_maxforce)
+		{
+			steer *= (m_maxforce / steer.Length());
+		}
+		return Vector3(steer.x, 0, steer.y);
 
-	Vector2 temp;
-	temp.Set(newPoint.x, newPoint.z);
-	temp.Normalized();
-
-	newPoint.Set(temp.x, 0, temp.y);
-
-	return newPoint;
+	}
+	else
+	{
+		return Vector3(0, 0, 0);
+	}
 }
 
 Vector3 CEntity::ComputeCohesion(vector<CEntity*> ListOfCharacters)
 {
-	Vector3 newPoint;
-	newPoint.SetZero();
-	int neighborCount = 0;
+	Vector2 sum;
+	int count = 0;
 
 	if (this->TYPE == "BOSS")
 	{
-		//return newPoint;
+		return Vector3(0, 0, 0);
 	}
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetID() != ID)
+		if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
-			if ((this->Position - ListOfCharacters[i]->GetPosition()).Length() < m_flockZone)
+			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
+			if (distance < m_flockZone)
 			{
-				newPoint += ListOfCharacters[i]->GetPosition();
-				neighborCount++;
+				Vector2 PositionCopy = Vector2(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().z);
+				sum += PositionCopy;
+				count++;
 			}
 		}
 	}
 
-	if (neighborCount == 0)
-		return newPoint;
+	if (count > 0)
+	{
+		sum.x /= (float)count;
+		sum.y /= (float)count;
 
-	newPoint.x /= neighborCount;
-	newPoint.z /= neighborCount;
-
-	newPoint -= this->Position;
-
-	Vector2 temp;
-	temp.Set(newPoint.x, newPoint.z);
-	temp.Normalized();
-
-	newPoint.Set(temp.x, 0, temp.y);
-
-	return newPoint;
+		Vector2 theSeek = seek(sum);
+		return Vector3(theSeek.x, 0, theSeek.y);
+	}
+	else
+	{
+		return Vector3(0, 0, 0);
+	}
 }
 
 Vector3 CEntity::ComputeSeperation(vector<CEntity*> ListOfCharacters)
 {
-	Vector3 newPoint;
-	newPoint.SetZero();
-	int neighborCount = 0;
+	Vector2 steer;
+	steer.SetZero();
+
+	int count = 0;
 
 	if (this->TYPE == "BOSS")
 	{
-		//return newPoint;
+		return Vector3(0, 0, 0);
 	}
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetID() != ID)
+		if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
-			if ((this->Position - ListOfCharacters[i]->GetPosition()).Length() < m_flockZone)
+			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
+			if (distance < m_seperationZone)
 			{
-				newPoint += ListOfCharacters[i]->GetPosition();
-				newPoint -= this->Position;
-				neighborCount++;
+				Vector3 DirectionCopy = Position - ListOfCharacters[i]->GetPosition();
+				Vector2 diff = Vector2(DirectionCopy.x, DirectionCopy.z);
+				if (!diff.IsZero())
+				{
+					diff = diff.Normalized();
+					diff.x /= distance;
+					diff.y /= distance;
+				}
+				steer += diff;
+				count++;
 			}
 		}
 	}
 
-	if (neighborCount == 0)
-		return newPoint;
+	if (count > 0)
+	{
+		steer.x /= (float)count;
+		steer.y /= (float)count;
+	}
 
-	newPoint.x /= neighborCount;
-	newPoint.z /= neighborCount;
+	if (steer.Length() > 0)
+	{
 
-	newPoint.x *= -1.f;
-	newPoint.z *= -1.f;
+		//Math::Clamp(steer.Length(), maxspeed, maxspeed);
+		steer = steer.Normalized();
+		steer *= m_MoveSpeed;
+		Vector2 DirectionCopy = Vector2(Direction.x, Direction.z);
+		steer -= DirectionCopy;
+		//Math::Clamp(steer.Length(), 0.f, maxforce);
 
-	Vector2 temp;
-	temp.Set(newPoint.x, newPoint.z);
-	temp.Normalized();
+		if (steer.Length() >= m_maxforce)
+		{
+			steer *= (m_maxforce / steer.Length());
+		}
+	}
 
-	newPoint.Set(temp.x, 0, temp.y);
-
-	return newPoint;
+	return Vector3(steer.x, 0, steer.y);
 }
