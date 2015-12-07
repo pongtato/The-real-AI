@@ -8,7 +8,7 @@ class CTank : public CEntity
 
 private:
 	const static int TANK_LOOK_OFFSET = 90;
-	const static int BLOCK_CHANCE = 35;
+	const static int BLOCK_CHANCE = 25;
 	const float SWORD_SWING_SPEED = 500.f;
 	const float SHIELD_SWING_SPEED = 500.f;
 	const float SWORD_SWING_ROT_AMOUNT = 90.f;

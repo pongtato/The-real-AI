@@ -46,4 +46,8 @@
 		[NAME] STATUSFONT
 		[Directory] Config\\Resources\\Texture\\AI\\STATUSFONT.tga
 	}
+	{
+		[NAME] HP
+		[Directory] Config\\Resources\\Texture\\AI\\HP.tga
+	}
 }

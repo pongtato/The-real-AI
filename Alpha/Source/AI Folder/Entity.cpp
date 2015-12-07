@@ -134,13 +134,9 @@ void CEntity::Move(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, 
 
 	Position += Direction * m_MoveSpeed * dt;
 
-	if (Position.x > 200.f)
-	{
-		Position.x = -200.f;
-	}
 
-	Position.x = Math::Wrap(Position.x, -100.f, 100.f);
-	Position.z = Math::Wrap(Position.z, -100.f, 100.f);
+	Position.x = Math::Wrap(Position.x, -200.f, 200.f);
+	Position.z = Math::Wrap(Position.z, -200.f, 200.f);
 
 	Direction.SetZero();
 }

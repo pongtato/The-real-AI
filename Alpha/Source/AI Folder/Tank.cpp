@@ -156,9 +156,23 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		}
 		break;
 	case RETREAT:
+		if (m_DangerZone > (Position - DangerPosition).Length())
+		{
+			m_StateChangeTimer = 0.0f;
+			Retreat(ListOfCharacters, DangerPosition, dt);
+		}
+		else if (m_StateChangeTimer <= StateChangeDelay)
+		{
+			Retreat(ListOfCharacters, DangerPosition, dt);
+		}
+		else
+		{
+			state = MOVE;
+		}
+
 		if (GetHpPercent() > 25)
 		{
-			state = ATTACK;
+			state = MOVE;
 		}
 		break;
 	default:

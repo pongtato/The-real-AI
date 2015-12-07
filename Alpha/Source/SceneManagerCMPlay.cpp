@@ -144,28 +144,24 @@ void SceneManagerCMPlay::Update(double dt)
 	if (inputManager->getKey("F1") && KeyDelay >= THEDELAY)
 	{
 		CreateTANK();
-		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 
 	if (inputManager->getKey("F2") && KeyDelay >= THEDELAY)
 	{
 		CreateMAGE();
-		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 
 	if (inputManager->getKey("F3") && KeyDelay >= THEDELAY)
 	{
 		CreateHEALER();
-		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 
 	if (inputManager->getKey("F4") && KeyDelay >= THEDELAY)
 	{
 		CreateBOSS();
-		cout << TOTAL_COUNT << endl;
 		KeyDelay = 0.0f;
 	}
 	//******************************************************************************************************
@@ -392,8 +388,14 @@ void SceneManagerCMPlay::RenderPlayerStats()
 	drawMesh->textureID = resourceManager.retrieveTexture("STATUSFONT");
 
 	string count = "Total Entities: " + to_string(TOTAL_COUNT);
-
-	RenderTextOnScreen(drawMesh, count, resourceManager.retrieveColor("Green"), 30.f, 10, 1050, 0);
+	string FPS = "FPS: " + to_string(fps);
+	RenderTextOnScreen(drawMesh, FPS, resourceManager.retrieveColor("Green"), 30.f, 10, 1050, 0);
+	RenderTextOnScreen(drawMesh, count, resourceManager.retrieveColor("Green"), 30.f, 10, 1020, 0);
+	RenderTextOnScreen(drawMesh, "F1 - To spawn tank", resourceManager.retrieveColor("Green"), 30.f, 10, 990, 0);
+	RenderTextOnScreen(drawMesh, "F2 - To spawn mage", resourceManager.retrieveColor("Green"), 30.f, 10, 960, 0);
+	RenderTextOnScreen(drawMesh, "F3 - To spawn healer", resourceManager.retrieveColor("Green"), 30.f, 10, 930, 0);
+	RenderTextOnScreen(drawMesh, "F4 - To spawn boss", resourceManager.retrieveColor("Green"), 30.f, 10, 900, 0);
+	
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
@@ -414,13 +416,19 @@ void SceneManagerCMPlay::RenderPlayerStats()
 		modelStack.Translate(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().y + 15.f, ListOfCharacters[i]->GetPosition().z);
 		modelStack.Rotate(m_BillBoard, 0, 1, 0);
 		modelStack.Scale(2.f, 2.f, 2.f);
+		modelStack.PushMatrix();
+		modelStack.Translate(-2.5f, 0.f, 0.f);
 		RenderText(drawMesh, ListOfCharacters[i]->PrintState(), resourceManager.retrieveColor("White"));	
+		modelStack.PopMatrix();
 
 		float HPBARSCALE = 5.f;
 
 		modelStack.PushMatrix();
 		float newScale = (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
-		modelStack.Translate(0.f, 2.f, 0.01f);
+
+		float theTranslate = 5.0f - (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
+
+		modelStack.Translate(-theTranslate * 0.5f, 2.f, 0.01f);
 		modelStack.Scale(newScale, 1, 1);
 		Render3DMesh(resourceManager.retrieveMesh("HPCURRENT"), true);
 		modelStack.PopMatrix();
@@ -516,8 +524,6 @@ void SceneManagerCMPlay::CreateTANK(void)
 	Tank->RandomSpawn(0, 100);
 	Tank->SetDangerZone(Boss->GetAttackRange() * 1.5f);
 	ListOfCharacters.push_back(Tank);
-
-	cout << TOTAL_COUNT << endl;
 }
 
 void SceneManagerCMPlay::CreateMAGE(void)
@@ -567,7 +573,7 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	//sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
 
 	Vector3 Temp;
-	Temp.Set(0, theTank->GetChildTranslation(CHILD_1), -5);
+	Temp.Set(0, theTank->GetChildTranslation(CHILD_1) + 1, -4.5);
 
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Temp);
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theTank->GetChildRotation(CHILD_1), 0, 0, 1);
@@ -587,7 +593,7 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	IDPlus += SHIELD;
 	IDPlus += theTank->GetID().back();
 
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, 4.5));
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(90, 0, 1, 0);
 }
 
@@ -603,7 +609,7 @@ void SceneManagerCMPlay::MAGE_NODE(CEntity* theMage)
 	IDPlus += STAFF;
 	IDPlus += theMage->GetID().back();
 
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 1, -4.5));
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theMage->GetChildRotation(CHILD_1), 0, 0, 1);
 }
 void SceneManagerCMPlay::HEALER_NODE(CEntity* theHealer)
@@ -618,7 +624,7 @@ void SceneManagerCMPlay::HEALER_NODE(CEntity* theHealer)
 	IDPlus += ROD;
 	IDPlus += theHealer->GetID().back();
 
-	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 0, -5));
+	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setPosition(Vector3(0, 1, -4.5));
 	sceneGraph->GetChildNode(IDPlus)->GetGameObject()->setRotation(theHealer->GetChildRotation(CHILD_1), 0, 0, 1);
 }
 void SceneManagerCMPlay::BOSS_NODE(CEntity* theBoss)
