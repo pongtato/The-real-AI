@@ -49,7 +49,7 @@ public:
 	float GetHpPercent(void);
 	float GetAttackRange(void);
 	float GetRotation(void);
-	const float StateChangeDelay = 1.f;
+	const float StateChangeDelay = 0.5f;
 	float m_StateChangeTimer;
 	int GetPriorityLevel(void);
 	int GetIDNO(void);

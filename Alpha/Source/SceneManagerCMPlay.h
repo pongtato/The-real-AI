@@ -84,6 +84,11 @@ public:
 	void HEALER_NODE(CEntity* theHealer);
 	void BOSS_NODE(CEntity* theBoss);
 
+	void WarriorLowDemo(void);
+	void WarriorKillDemo(void);
+	void HealerDemo(void);
+	void Restore(void);
+
 	CTank*		Tank;
 	CHealer*	Healer;
 	CMage*		Mage;

@@ -11,7 +11,7 @@ CHealer::CHealer()
 	targetID = HEALER;
 	m_Damage = 15.f;
 	m_HP = 100;
-	m_Curent_HP = 20;
+	m_Curent_HP = m_HP;
 
 	Position.Set(
 		Probability(0, 100),
@@ -160,11 +160,17 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		{
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
+				if (!target->GetActive())
+				{
+					state = REVIVE;
+				}
 				//Do Healing
-				if (target && target->GetActive())
+				else if (target && target->GetActive())
 				{
 					UpdateAttacking(target, dt);
 				}
+
+				
 				m_StateChangeTimer = 0.0f;
 			}
 			else

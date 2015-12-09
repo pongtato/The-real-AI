@@ -8,7 +8,7 @@ SceneManagerCMPlay::SceneManagerCMPlay()
 , Boss(NULL)
 {
 	ViewChoice = 0;
-	KeyDelay = 0.f;
+	KeyDelay = 0.5f;
 	toggleStatusAndParticles = true;
 }
 
@@ -168,6 +168,26 @@ void SceneManagerCMPlay::Update(double dt)
 	if (inputManager->getKey("F4") && KeyDelay >= THEDELAY)
 	{
 		CreateBOSS();
+		KeyDelay = 0.0f;
+	}
+	if (inputManager->getKey("F5") && KeyDelay >= THEDELAY)
+	{
+		WarriorLowDemo();
+		KeyDelay = 0.0f;
+	}
+	if (inputManager->getKey("F6") && KeyDelay >= THEDELAY)
+	{
+		WarriorKillDemo();
+		KeyDelay = 0.0f;
+	}
+	if (inputManager->getKey("F7") && KeyDelay >= THEDELAY)
+	{
+		HealerDemo();
+		KeyDelay = 0.0f;
+	}
+	if (inputManager->getKey("F8") && KeyDelay >= THEDELAY)
+	{
+		Restore();
 		KeyDelay = 0.0f;
 	}
 	if (inputManager->getKey("3"))
@@ -392,15 +412,20 @@ void SceneManagerCMPlay::RenderStaticObject()
 	modelStack.PopMatrix();
 
 	drawMesh = resourceManager.retrieveMesh("FLOOR");
-	drawMesh->textureID = resourceManager.retrieveTexture("GRASS");
+	drawMesh->textureID = resourceManager.retrieveTexture("FLOOR");
 
-	modelStack.PushMatrix();
-	modelStack.Rotate(-90, 1, 0, 0);
-	modelStack.Translate(0, 0, -10);
-	modelStack.Rotate(-90, 0, 0, 1);
-	modelStack.Scale(1000.0f, 1000.0f, 1000.0f);
-	Render3DMesh(drawMesh, false);
-	modelStack.PopMatrix();
+	for (int i = 0; i < 10; ++i)
+	{
+		for (int j = 0; j < 10; ++j)
+		{
+			modelStack.PushMatrix();
+			modelStack.Rotate(-90, 1, 0, 0);
+			modelStack.Translate(-500 + i * 100, -500 +j * 100, -5);
+			modelStack.Scale(100.0f, 100.0f, 100.0f);
+			Render3DMesh(drawMesh, false);
+			modelStack.PopMatrix();
+		}
+	}
 }
 
 void SceneManagerCMPlay::RenderPlayerStats()
@@ -409,14 +434,20 @@ void SceneManagerCMPlay::RenderPlayerStats()
 	Mesh* drawMesh = resourceManager.retrieveMesh("FONT");
 	drawMesh->textureID = resourceManager.retrieveTexture("STATUSFONT");
 
-	string count = "Total Entities: " + to_string(TOTAL_COUNT);
+	string count = "Total Entities:" + to_string(TOTAL_COUNT);
 	string FPS = "FPS: " + to_string(fps);
-	RenderTextOnScreen(drawMesh, FPS, resourceManager.retrieveColor("Green"), 30.f, 10, 1050, 0);
-	RenderTextOnScreen(drawMesh, count, resourceManager.retrieveColor("Green"), 30.f, 10, 1020, 0);
-	RenderTextOnScreen(drawMesh, "F1 - To spawn tank", resourceManager.retrieveColor("Green"), 30.f, 10, 990, 0);
-	RenderTextOnScreen(drawMesh, "F2 - To spawn mage", resourceManager.retrieveColor("Green"), 30.f, 10, 960, 0);
-	RenderTextOnScreen(drawMesh, "F3 - To spawn healer", resourceManager.retrieveColor("Green"), 30.f, 10, 930, 0);
-	RenderTextOnScreen(drawMesh, "F4 - To spawn boss", resourceManager.retrieveColor("Green"), 30.f, 10, 900, 0);
+	RenderTextOnScreen(drawMesh, FPS, resourceManager.retrieveColor("White"), 25.f, 1500, 1050, 0);
+	RenderTextOnScreen(drawMesh, count, resourceManager.retrieveColor("White"), 25.f, 1500, 1020, 0);
+	RenderTextOnScreen(drawMesh, "F1 - To spawn tank", resourceManager.retrieveColor("White"), 25.f, 10, 1050, 0);
+	RenderTextOnScreen(drawMesh, "F2 - To spawn mage", resourceManager.retrieveColor("White"), 25.f, 10, 1020, 0);
+	RenderTextOnScreen(drawMesh, "F3 - To spawn healer", resourceManager.retrieveColor("White"), 25.f, 10, 990, 0);
+	RenderTextOnScreen(drawMesh, "F4 - To spawn boss", resourceManager.retrieveColor("White"), 25.f, 10, 960, 0);
+	RenderTextOnScreen(drawMesh, "F5 - Warrior hp = 10%", resourceManager.retrieveColor("White"), 25.f, 10, 930, 0);
+	RenderTextOnScreen(drawMesh, "F6 - Kill warrior", resourceManager.retrieveColor("White"), 25.f, 10, 900, 0);
+	RenderTextOnScreen(drawMesh, "F7 - Healer hp = 10%", resourceManager.retrieveColor("White"), 25.f, 10, 870, 0);
+	RenderTextOnScreen(drawMesh, "F8 - Restore health", resourceManager.retrieveColor("White"), 25.f, 10, 840, 0);
+	RenderTextOnScreen(drawMesh, "W & S - Cycle Camera", resourceManager.retrieveColor("White"), 25.f, 10, 810, 0);
+	RenderTextOnScreen(drawMesh, "3 & 4 - Toggle status render", resourceManager.retrieveColor("White"), 25.f, 10, 780, 0);
 	
 	if (toggleStatusAndParticles)
 	{
@@ -952,4 +983,49 @@ void SceneManagerCMPlay::AddBOSS(string ID)
 
 	BOSS_COUNT++;
 	TOTAL_COUNT++;
+}
+
+void SceneManagerCMPlay::WarriorLowDemo(void)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		{
+			ListOfCharacters[i]->SetCurrentHealthPoint(20);
+		}
+	}
+}
+
+void SceneManagerCMPlay::WarriorKillDemo(void)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		{
+			ListOfCharacters[i]->SetCurrentHealthPoint(0);
+		}
+	}
+}
+
+void SceneManagerCMPlay::HealerDemo(void)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == HEALER)
+		{
+			ListOfCharacters[i]->SetCurrentHealthPoint(20);
+		}
+	}
+}
+
+void SceneManagerCMPlay::Restore(void)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() != BOSS)
+		{
+			ListOfCharacters[i]->SetCurrentHealthPoint(100);
+			ListOfCharacters[i]->SetActive(true);
+		}
+	}
 }

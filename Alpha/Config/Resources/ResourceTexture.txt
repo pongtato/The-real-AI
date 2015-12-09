@@ -62,4 +62,8 @@
 		[NAME] HP
 		[Directory] Config\\Resources\\Texture\\AI\\HP.tga
 	}
+	{
+		[NAME] FLOOR
+		[Directory] Config\\Resources\\Texture\\AI\\floor.tga
+	}
 }

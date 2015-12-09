@@ -13,7 +13,7 @@ CTank::CTank()
 
 	m_HP = 100;
 	//Testing
-	m_Curent_HP = 0;
+	m_Curent_HP = m_HP;
 
 	Position.Set(
 		Probability(0, 100),
@@ -215,7 +215,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		}
 		break;
 	case SEEK_HEAL:
-		if ((HealPosition - Position).Length() >= 35.f)
+		if ((HealPosition - Position).Length() >= 25.f && SeekHealer(ListOfCharacters))
 		{
 			Move(ListOfCharacters, HealPosition, dt);
 		}

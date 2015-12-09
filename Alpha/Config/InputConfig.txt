@@ -54,7 +54,26 @@
 		[Key] 0x73
 		# [Key] VK_F4
 	}
-	
+	{
+		[NAME] F5
+		[Key] 0x74
+		# [Key] VK_F5
+	}
+	{
+		[NAME] F6
+		[Key] 0x75
+		# [Key] VK_F6
+	}
+	{	
+		[NAME] F7
+		[Key] 0x76
+		# [Key] VK_F7
+	}
+	{
+		[NAME] F8
+		[Key] 0x77
+		# [Key] VK_F8
+	}
 	{
 		[NAME] Left
 		[Key] 0x41

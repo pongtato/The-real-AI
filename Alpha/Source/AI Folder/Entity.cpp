@@ -173,7 +173,10 @@ void CEntity::Retreat(vector<CEntity*> ListOfCharacters,Vector3 TargetDestinatio
 	Vector3 Cohesion = ComputeCohesion(ListOfCharacters);
 	Vector3 Seperation = ComputeSeperation(ListOfCharacters);
 
-	Direction.Normalize() * m_RunSpeed;
+	if (!Direction.IsZero())
+	{
+		Direction.Normalize() * m_RunSpeed;
+	}
 
 	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
 	

@@ -156,7 +156,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, vector<CParticle*>
 		}
 		break;
 	case CMage::SEEK_HEAL:
-		if ((TargetPosition - Position).Length() >= 35.f)
+		if ((TargetPosition - Position).Length() >= 25.f)
 		{
 			Move(ListOfEnemies, TargetPosition, dt);
 		}
