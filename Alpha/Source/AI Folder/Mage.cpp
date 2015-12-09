@@ -74,7 +74,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, vector<CParticle*>
 		m_DangerZone = Boss->GetAttackRange() * 1.5f;
 	}
 
-	if (Boss->GetCastingSkillBool()) // If Boss is casting AoE skill, overwrite any existing state into RETREAT
+	if (Boss->GetCastingSkillBool() && !m_IsCastingSkill) // If Boss is casting AoE skill, overwrite any existing state into RETREAT
 	{
 		//test
 		state = RETREAT;
@@ -169,7 +169,7 @@ void CMage::UpdateAttacking(CEntity* target, vector<CParticle*> &ListOfParticles
 	//False  =  + speed, curr rotation < target rotation
 	bool SwingDirection;
 	bool HasReturned;
-
+	CBoss* boss = dynamic_cast<CBoss*>(target);
 	//Attacking
 	if (!m_StaffSwing)
 	{
@@ -188,50 +188,77 @@ void CMage::UpdateAttacking(CEntity* target, vector<CParticle*> &ListOfParticles
 
 	else if (m_StaffRotation <= STAFF_SWING_INIT_AMOUNT)
 	{
-		if (CBoss* boss = dynamic_cast<CBoss*>(target))
-		{
-			boss->SetCurrentHealthPoint(boss->GetCurrentHealthPoint() - m_Damage); // Damage the boss
-			boss->AddDamageTaken(m_Damage); // Update the damage threshold of the boss
-			m_LastAttackTimer = 0.0f;
-			TakingAction = false;
-			m_StaffSwing = false;
+
+		boss->SetCurrentHealthPoint(boss->GetCurrentHealthPoint() - m_Damage); // Damage the boss
+		boss->AddDamageTaken(m_Damage); // Update the damage threshold of the boss
+		m_LastAttackTimer = 0.0f;
+		TakingAction = false;
+		m_StaffSwing = false;
 
 #if _DEBUG
-			cout << "===========================================" << endl;
-			cout << this->GetID() << " damages " <<boss->GetID() << " for " << m_Damage << endl;
-			cout << boss->GetID() << " current HP: " << boss->GetCurrentHealthPoint() << endl;
-			cout << boss->GetID() << " damage taken since last AoE: " << boss->GetDamageTaken() << endl;
-			cout << "===========================================" << endl;
+		cout << "===========================================" << endl;
+		cout << this->GetID() << " damages " << boss->GetID() << " for " << m_Damage << endl;
+		cout << boss->GetID() << " current HP: " << boss->GetCurrentHealthPoint() << endl;
+		cout << boss->GetID() << " damage taken since last AoE: " << boss->GetDamageTaken() << endl;
+		cout << "===========================================" << endl;
 #endif
 
-			bool castedFireball = false;
-			for (int i = 0; i < ListOfParticles.size(); ++i)
+		bool castedFireball = false;
+		for (int i = 0; i < ListOfParticles.size(); ++i)
+		{
+			if (!ListOfParticles[i]->m_Active)
 			{
-				if (!ListOfParticles[i]->m_Active)
-				{
-					CParticle* temp = ListOfParticles[i];
-					temp->m_Active = true;
-					temp->position = Position;
-					temp->speed = 200.f;
-					temp->targetPosition = boss->GetPosition();
-					castedFireball = true;
-					break;
-				}
-			}
-			if (!castedFireball)
-			{
-				CParticle* temp = new CParticle(Position, boss->GetPosition(), true, 200.f);
-				temp->mesh = manager.retrieveMesh("FIREBALL");
-				ListOfParticles.push_back(temp);
-				cout <<"LIST OF PARTICLE SIZE IS: " << ListOfParticles.size() << endl;
+				CParticle* temp = ListOfParticles[i];
+				temp->m_Active = true;
+				temp->position = Position;
+				temp->speed = 200.f;
+				temp->scale = 1.0f;
+				temp->scaleTimer = 0.f;
+				temp->targetPosition = boss->GetPosition();
+				castedFireball = true;
+				break;
 			}
 		}
+		if (!castedFireball)
+		{
+			CParticle* temp = new CParticle(Position, boss->GetPosition(), true, 200.f);
+			temp->mesh = manager.retrieveMesh("FIREBALL");
+			ListOfParticles.push_back(temp);
+			cout << "LIST OF PARTICLE SIZE IS: " << ListOfParticles.size() << endl;
+		}
 	}
+
 
 	if (m_Cooldown <= 0.f)
 	{
 		m_IsCastingSkill = true;	// Set the boolean for casting to true
 		state = CAST_SKILL;	// Change it's state to casting of skill
+
+		bool castedFireball = false;
+		for (int i = 0; i < ListOfParticles.size(); ++i)
+		{
+			if (!ListOfParticles[i]->m_Active)
+			{
+				Vector3 BossDir = (boss->GetPosition() - Position).Normalized();
+				CParticle* temp = ListOfParticles[i];
+				temp->m_Active = true;
+				temp->position = Position + (BossDir * DEFAULT_CASTING_TIME * 3);
+				temp->speed = 200.f;
+				temp->scale = 1.0f;
+				temp->scaleTimer = DEFAULT_CASTING_TIME; 
+				temp->trackingTarget = boss;
+				castedFireball = true;
+				break;
+			}
+		}
+		if (!castedFireball)
+		{
+			CParticle* temp = new CParticle(Position, boss, true, 200.f);
+			temp->scaleTimer = DEFAULT_CASTING_TIME;
+			temp->mesh = manager.retrieveMesh("FIREBALL");
+			ListOfParticles.push_back(temp);
+			cout << "LIST OF PARTICLE SIZE IS: " << ListOfParticles.size() << endl;
+		}
 	}
 	
 }

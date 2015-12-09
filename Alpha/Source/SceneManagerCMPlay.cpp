@@ -468,7 +468,6 @@ void SceneManagerCMPlay::RenderMobileObject()
 			CBoss* temp = (CBoss*)ListOfCharacters[i];
 			if (temp->GetCastingSkillBool())
 			{
-
 				modelStack.PushMatrix();
 				modelStack.Translate(temp->GetPosition().x, temp->GetPosition().y, temp->GetPosition().z);
 				modelStack.Rotate(-90, 1, 0, 0);
@@ -485,6 +484,7 @@ void SceneManagerCMPlay::RenderMobileObject()
 			CParticle* Particle = ListOfParticles[i];
 			modelStack.PushMatrix();
 			modelStack.Translate(Particle->position.x, Particle->position.y, Particle->position.z);
+			modelStack.Scale(Particle->scale, Particle->scale, Particle->scale);
 			Render3DMesh(Particle->mesh, false);
 			modelStack.PopMatrix();
 		}
