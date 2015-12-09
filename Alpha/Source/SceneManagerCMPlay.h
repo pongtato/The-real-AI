@@ -25,7 +25,7 @@
 #define CHILD_1 1
 #define CHILD_2 2
 
-#define THEDELAY 0.5f
+#define THEDELAY 0.1f
 
 class SceneManagerCMPlay : public SceneManagerGameplay
 {
@@ -41,6 +41,7 @@ private:
 	int BOSS_COUNT;
 	int TOTAL_COUNT;
 
+	bool toggleStatusAndParticles;
 	int ViewChoice;
 	float KeyDelay;
 	//Camera billboard direction

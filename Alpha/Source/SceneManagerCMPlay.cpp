@@ -9,6 +9,7 @@ SceneManagerCMPlay::SceneManagerCMPlay()
 {
 	ViewChoice = 0;
 	KeyDelay = 0.f;
+	toggleStatusAndParticles = true;
 }
 
 SceneManagerCMPlay::~SceneManagerCMPlay()
@@ -169,6 +170,14 @@ void SceneManagerCMPlay::Update(double dt)
 		CreateBOSS();
 		KeyDelay = 0.0f;
 	}
+	if (inputManager->getKey("3"))
+	{
+		toggleStatusAndParticles = true;
+	}
+	if (inputManager->getKey("4"))
+	{
+		toggleStatusAndParticles = false;
+	}
 	//******************************************************************************************************
 
 	Vector3 m_CameraFollow = ListOfCharacters[ViewChoice]->GetPosition();
@@ -217,12 +226,14 @@ void SceneManagerCMPlay::Update(double dt)
 			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
 		}
 	}
-
-	for (int i = 0; i < ListOfParticles.size(); ++i)
+	
+	if (toggleStatusAndParticles)
 	{
-		ListOfParticles[i]->Update(dt);
+		for (int i = 0; i < ListOfParticles.size(); ++i)
+		{
+			ListOfParticles[i]->Update(dt);
+		}
 	}
-
 	UpdateSceneGraph();
 }
 
@@ -407,52 +418,54 @@ void SceneManagerCMPlay::RenderPlayerStats()
 	RenderTextOnScreen(drawMesh, "F3 - To spawn healer", resourceManager.retrieveColor("Green"), 30.f, 10, 930, 0);
 	RenderTextOnScreen(drawMesh, "F4 - To spawn boss", resourceManager.retrieveColor("Green"), 30.f, 10, 900, 0);
 	
-
-	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	if (toggleStatusAndParticles)
 	{
-		Vector2 CopyVector;
-		Vector2 CopyVector2;
-
-		CopyVector.Set(tpCamera.getPosition().x, tpCamera.getPosition().z);
-		CopyVector2.Set(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().z);
-
-		Vector2 Direction = (CopyVector - CopyVector2).Normalized();
-	
-		if (!Direction.IsZero())
+		for (int i = 0; i < ListOfCharacters.size(); ++i)
 		{
-			m_BillBoard = Math::RadianToDegree(atan2(Direction.x, Direction.y));
+			Vector2 CopyVector;
+			Vector2 CopyVector2;
+
+			CopyVector.Set(tpCamera.getPosition().x, tpCamera.getPosition().z);
+			CopyVector2.Set(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().z);
+
+			Vector2 Direction = (CopyVector - CopyVector2).Normalized();
+
+			if (!Direction.IsZero())
+			{
+				m_BillBoard = Math::RadianToDegree(atan2(Direction.x, Direction.y));
+			}
+
+			modelStack.PushMatrix();
+			modelStack.Translate(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().y + 15.f, ListOfCharacters[i]->GetPosition().z);
+			modelStack.Rotate(m_BillBoard, 0, 1, 0);
+			modelStack.Scale(2.f, 2.f, 2.f);
+			modelStack.PushMatrix();
+			modelStack.Translate(-2.5f, 0.f, 0.f);
+			RenderText(drawMesh, ListOfCharacters[i]->PrintState(), resourceManager.retrieveColor("White"));
+			modelStack.PopMatrix();
+
+			float HPBARSCALE = 5.f;
+
+			modelStack.PushMatrix();
+			float newScale = (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
+
+			float theTranslate = 5.0f - (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
+
+			modelStack.Translate(-theTranslate * 0.5f, 2.f, 0.01f);
+			modelStack.Scale(newScale, 1, 1);
+			Render3DMesh(resourceManager.retrieveMesh("HPCURRENT"), true);
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			modelStack.Translate(0.f, 2.f, 0.f);
+			modelStack.Scale(HPBARSCALE, 1, 1);
+			Render3DMesh(resourceManager.retrieveMesh("HPMAX"), true);
+			modelStack.PopMatrix();
+
+			modelStack.PopMatrix();
+
+
 		}
-
-		modelStack.PushMatrix();
-		modelStack.Translate(ListOfCharacters[i]->GetPosition().x, ListOfCharacters[i]->GetPosition().y + 15.f, ListOfCharacters[i]->GetPosition().z);
-		modelStack.Rotate(m_BillBoard, 0, 1, 0);
-		modelStack.Scale(2.f, 2.f, 2.f);
-		modelStack.PushMatrix();
-		modelStack.Translate(-2.5f, 0.f, 0.f);
-		RenderText(drawMesh, ListOfCharacters[i]->PrintState(), resourceManager.retrieveColor("White"));	
-		modelStack.PopMatrix();
-
-		float HPBARSCALE = 5.f;
-
-		modelStack.PushMatrix();
-		float newScale = (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
-
-		float theTranslate = 5.0f - (ListOfCharacters[i]->GetHpPercent() / 100) * HPBARSCALE;
-
-		modelStack.Translate(-theTranslate * 0.5f, 2.f, 0.01f);
-		modelStack.Scale(newScale, 1, 1);
-		Render3DMesh(resourceManager.retrieveMesh("HPCURRENT"), true);
-		modelStack.PopMatrix();
-
-		modelStack.PushMatrix();
-		modelStack.Translate(0.f,2.f,0.f);
-		modelStack.Scale(HPBARSCALE, 1, 1);
-		Render3DMesh(resourceManager.retrieveMesh("HPMAX"), true);
-		modelStack.PopMatrix();
-
-		modelStack.PopMatrix();
-
-		
 	}
 }
 
@@ -477,16 +490,19 @@ void SceneManagerCMPlay::RenderMobileObject()
 			}
 		}
 	}
-	for (int i = 0; i < ListOfParticles.size(); ++i)
+	if (toggleStatusAndParticles)
 	{
-		if (ListOfParticles[i]->m_Active)
+		for (int i = 0; i < ListOfParticles.size(); ++i)
 		{
-			CParticle* Particle = ListOfParticles[i];
-			modelStack.PushMatrix();
-			modelStack.Translate(Particle->position.x, Particle->position.y, Particle->position.z);
-			modelStack.Scale(Particle->scale, Particle->scale, Particle->scale);
-			Render3DMesh(Particle->mesh, false);
-			modelStack.PopMatrix();
+			if (ListOfParticles[i]->m_Active)
+			{
+				CParticle* Particle = ListOfParticles[i];
+				modelStack.PushMatrix();
+				modelStack.Translate(Particle->position.x, Particle->position.y, Particle->position.z);
+				modelStack.Scale(Particle->scale, Particle->scale, Particle->scale);
+				Render3DMesh(Particle->mesh, false);
+				modelStack.PopMatrix();
+			}
 		}
 	}
 	/*modelStack.PushMatrix();

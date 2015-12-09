@@ -48,7 +48,7 @@ void CParticle::Update(double dt)
 {
 	if (m_Active)
 	{
-
+		float totalspeed = (speed * dt);
 		
 		if (trackingTarget)
 		{
@@ -61,9 +61,9 @@ void CParticle::Update(double dt)
 		}
 
 		if (scaleTimer <= 0)
-			position += direction * (speed * dt);
+			position += direction * totalspeed;
 
-		if ((position - targetPosition).Length() <  scale)
+		if ((position - targetPosition).Length() <  scale + totalspeed)
 			m_Active = false;
 
 		if (scaleTimer > 0)

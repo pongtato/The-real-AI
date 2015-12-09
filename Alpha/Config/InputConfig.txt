@@ -54,6 +54,7 @@
 		[Key] 0x73
 		# [Key] VK_F4
 	}
+	
 	{
 		[NAME] Left
 		[Key] 0x41
@@ -74,5 +75,14 @@
 		[Key] 0x0D
 		# [Key] VK_RETURN
 	}
+	{
+		[NAME] 3
+		[Key] 0x33
+	}
+	{
+		[NAME] 4
+		[Key] 0x34
+	}
+	
 }
 # https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
