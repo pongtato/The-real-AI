@@ -144,15 +144,16 @@ void CEntity::Move(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, 
 void CEntity::Retreat(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, double dt)
 {
 	// Get the direction
-	Direction = (Position - TargetDestination).Normalized();
+	Direction = (Position - TargetDestination);
+
 
 	Vector3 Alignment = ComputeAlignment(ListOfCharacters);
 	Vector3 Cohesion = ComputeCohesion(ListOfCharacters);
 	Vector3 Seperation = ComputeSeperation(ListOfCharacters);
 
-	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
+	Direction.Normalize() * m_RunSpeed;
 
-	Direction.Normalize();
+	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
 	
 	Position += Direction * m_RunSpeed * dt;
 }
@@ -258,12 +259,13 @@ Vector3 CEntity::ComputeAlignment(vector<CEntity*> ListOfCharacters)
 
 	if (this->TYPE == "BOSS")
 	{
-		return Vector3(0, 0, 0);
+		//return Vector3(0, 0, 0);
 	}
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
+		if (ListOfCharacters[i] != this)
+		//if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
 			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
 			if (distance < m_flockZone)
@@ -307,12 +309,13 @@ Vector3 CEntity::ComputeCohesion(vector<CEntity*> ListOfCharacters)
 
 	if (this->TYPE == "BOSS")
 	{
-		return Vector3(0, 0, 0);
+		//return Vector3(0, 0, 0);
 	}
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
+		if (ListOfCharacters[i] != this)
+		//if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
 			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
 			if (distance < m_flockZone)
@@ -347,12 +350,13 @@ Vector3 CEntity::ComputeSeperation(vector<CEntity*> ListOfCharacters)
 
 	if (this->TYPE == "BOSS")
 	{
-		return Vector3(0, 0, 0);
+		//return Vector3(0, 0, 0);
 	}
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
+		if (ListOfCharacters[i] != this)
+		//if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
 			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
 			if (distance < m_seperationZone)
@@ -394,4 +398,18 @@ Vector3 CEntity::ComputeSeperation(vector<CEntity*> ListOfCharacters)
 	}
 
 	return Vector3(steer.x, 0, steer.y);
+}
+
+void CEntity::ComputeDangerPosition(vector<CEntity*> ListOfCharacters)
+{
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+		{
+			if ((ListOfCharacters[i]->GetPosition() - Position).Length() < (DangerPosition - Position).Length())
+			{
+				this->DangerPosition = ListOfCharacters[i]->GetPosition();
+			}	
+		}
+	}
 }

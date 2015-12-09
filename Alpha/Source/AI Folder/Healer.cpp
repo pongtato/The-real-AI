@@ -70,6 +70,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 {
 	CEntity* target = NULL;
 	DangerPosition = newDangerPosition;
+	ComputeDangerPosition(ListOfCharacters);
 	//Face the targets position
 	FaceTarget();
 	TickTimer(dt);
@@ -168,7 +169,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		}
 		break;
 	case RETREAT:
-		if (m_DangerZone > (Position - DangerPosition).Length())
+		if (m_DangerZone > (Position - DangerPosition).Length() && m_LastAttackTimer < m_AttackDelay)
 		{
 			m_StateChangeTimer = 0.0f;
 			Retreat(ListOfCharacters,DangerPosition, dt);

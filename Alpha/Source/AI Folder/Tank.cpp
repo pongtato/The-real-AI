@@ -49,6 +49,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 {
 	TargetPosition = newTargetPosition;
 	DangerPosition = newDangerPosition;
+	ComputeDangerPosition(ListOfCharacters);
 	//Face the targets position
 	FaceTarget();
 	TickTimer(dt);
@@ -170,7 +171,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			state = MOVE;
 		}
 
-		if (GetHpPercent() > 25)
+		if (GetHpPercent() > 50)
 		{
 			state = MOVE;
 		}

@@ -55,6 +55,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 
 	TargetPosition = newTargetPosition;
 	DangerPosition = newDangerPosition;
+	ComputeDangerPosition(ListOfEnemies);
 	//Face the targets position
 	FaceTarget();
 	TickTimer(dt);

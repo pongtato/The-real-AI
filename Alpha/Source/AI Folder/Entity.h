@@ -73,6 +73,7 @@ public:
 	virtual Vector3 ComputeAlignment(vector<CEntity*> ListOfCharacters);
 	virtual Vector3 ComputeCohesion(vector<CEntity*> ListOfCharacters);
 	virtual Vector3 ComputeSeperation(vector<CEntity*> ListOfCharacters);
+	virtual void ComputeDangerPosition(vector<CEntity*> ListOfCharacters);
 
 	virtual int Probability(int lowerLimit, int upperLimit);
 
@@ -93,22 +94,22 @@ public:
 
 protected:
 	int state;
-	int m_HP;				// Max HP of this AI
-	int m_Curent_HP;		// Current HP of this AI
-	int m_Priority;			// Boss attack priority level
-	int ID_NO;				// Number assigned to this unit
-	int targetID_NO;		// Targets assigned number
-	float m_Rotation;		// Rotation value of this AI
-	float m_MoveSpeed;		// SPD of this AI
-	float m_RunSpeed;		// Retreating SPD of this AI
-	float m_Damage;			// ATK stat of this AI
-	float m_AttackSpeed;	// AS stat of this AI
-	float m_LastAttackTimer;// Time of last known attack
-	float m_Cooldown;		// Skill cooldown of this AI
-	float m_AttackRange;	// Attack Range of this AI
+	int m_HP;					// Max HP of this AI
+	int m_Curent_HP;			// Current HP of this AI
+	int m_Priority;				// Boss attack priority level
+	int ID_NO;					// Number assigned to this unit
+	int targetID_NO;			// Targets assigned number
+	float m_Rotation;			// Rotation value of this AI
+	float m_MoveSpeed;			// SPD of this AI
+	float m_RunSpeed;			// Retreating SPD of this AI
+	float m_Damage;				// ATK stat of this AI
+	float m_AttackSpeed;		// AS stat of this AI
+	float m_LastAttackTimer;	// Time of last known attack
+	float m_Cooldown;			// Skill cooldown of this AI
+	float m_AttackRange;		// Attack Range of this AI
 	float m_AttackRangeOffset;	// Offset to move closer before commencing attack
-	float m_DangerZone;		// Caution zone of this AI
-	float m_InitialRotation;// Where to reset the child node to etc Sword starting point
+	float m_DangerZone;			// Caution zone of this AI
+	float m_InitialRotation;	// Where to reset the child node to etc Sword starting point
 
 	const float m_alignmentWeight = 0.1f;
 	const float m_cohesionWeight = 0.1f;
