@@ -69,6 +69,15 @@ string CHealer::PrintState(void)
 void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
 	CEntity* target = NULL;
+	CBoss* Boss = NULL;
+	for (unsigned int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+		{
+			Boss = (CBoss*)ListOfCharacters[i];
+			break;
+		}
+	}
 	DangerPosition = newDangerPosition;
 	ComputeDangerPosition(ListOfCharacters);
 	//Face the targets position
@@ -95,7 +104,17 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		m_RodRotation = ROD_SWING_INIT_AMOUNT;
 		state = RETREAT;
 	}
+	else
+	{
+		m_DangerZone = Boss->GetAttackRange() * 1.5f;
+	}
 
+	if (Boss->GetCastingSkillBool()) // If Boss is casting AoE skill, overwrite any existing state into RETREAT
+	{
+		//test
+		state = RETREAT;
+		m_DangerZone = Boss->GetSkillRadius();
+	}
 	switch (state)
 	{
 	case MOVE:

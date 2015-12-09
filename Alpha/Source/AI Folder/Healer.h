@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include "Boss.h"
 #include  <vector>
 
 class CHealer : public CEntity
