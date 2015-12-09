@@ -29,6 +29,11 @@ CMage::CMage()
 	m_AttackSpeed = 1.0f;
 	m_LastAttackTimer = m_AttackDelay;
 
+	//Casting skill init
+	m_CastingTimer = 0.f;
+	m_IsCastingSkill = false;
+	m_Cooldown = 0.f;
+
 	TakingAction = false;
 
 	m_Priority = 1;
@@ -39,14 +44,14 @@ CMage::~CMage()
 {
 }
 
-void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition, Vector3 newDangerPosition)
+void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, vector<CParticle*>&ListOfParticles, ResourceManager &manager, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
-	CEntity* Boss = NULL;
+	CBoss* Boss = NULL;
 	for (unsigned int i = 0; i < ListOfEnemies.size(); ++i)
 	{
 		if (ListOfEnemies[i]->GetTYPE() == "BOSS")
 		{
-			Boss = ListOfEnemies[i];
+			Boss = (CBoss*)ListOfEnemies[i];
 			break;
 		}
 	}
@@ -64,10 +69,20 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		m_StaffRotation = STAFF_SWING_INIT_AMOUNT;
 		state = RETREAT;
 	}
+	else
+	{
+		m_DangerZone = Boss->GetAttackRange() * 1.5f;
+	}
 
+	if (Boss->GetCastingSkillBool()) // If Boss is casting AoE skill, overwrite any existing state into RETREAT
+	{
+		//test
+		state = RETREAT;
+		m_DangerZone = Boss->GetSkillRadius();
+	}
 	switch (state)
 	{
-	case MOVE:
+	case CMage::MOVE:
 		if (m_AttackRangeOffset < (TargetPosition - Position).Length())
 		{
 			Move(ListOfEnemies,TargetPosition, dt);
@@ -77,7 +92,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			state = ATTACK;
 		}
 		break;
-	case ATTACK:
+	case CMage::ATTACK:
 		if (m_AttackRange >= (TargetPosition - Position).Length())
 		{
 			TakingAction = true;
@@ -87,12 +102,17 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 		{
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
+				
 				//Do attack 
-				UpdateAttacking(Boss, dt);
+				UpdateAttacking(Boss,ListOfParticles,manager, dt);
 				m_StateChangeTimer = 0.0f;
+
+				
+
 			}
 			else
 			{
+				
 				TakingAction = false;
 			}
 		}
@@ -104,7 +124,7 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			}
 		}
 		break;
-	case RETREAT:
+	case CMage::RETREAT:
 		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
 			m_StateChangeTimer = 0.0f;
@@ -119,11 +139,31 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			state = ATTACK;
 		}
 		break;
+	case CMage::CAST_SKILL:
+	{
+							  if (m_CastingTimer > DEFAULT_CASTING_TIME)
+							  {
+
+
+								  m_IsCastingSkill = false;
+								  m_CastingTimer = 0;
+								  Boss->SetCurrentHealthPoint(Boss->GetCurrentHealthPoint() - DEFAULT_SKILL_DAMAGE);
+								  m_Cooldown = DEFAULT_COOLDOWN; // Put the skill on cooldown
+								  state = MOVE;	// Set the state back to default movement
+#if _DEBUG
+								  cout << "===========================================" << endl;
+								  cout << this->GetID() << " Cast Fireball Skill and damages " << Boss->GetID() << " for " << DEFAULT_SKILL_DAMAGE << endl;
+								  cout << "===========================================" << endl;
+#endif
+							  }
+
+	}
+		break;
 	default:
 		break;
 	}
 }
-void CMage::UpdateAttacking(CEntity* target, double dt)
+void CMage::UpdateAttacking(CEntity* target, vector<CParticle*> &ListOfParticles, ResourceManager manager, double dt)
 {
 	//True  =  - speed, curr rotation > target rotation
 	//False  =  + speed, curr rotation < target rotation
@@ -163,8 +203,37 @@ void CMage::UpdateAttacking(CEntity* target, double dt)
 			cout << boss->GetID() << " damage taken since last AoE: " << boss->GetDamageTaken() << endl;
 			cout << "===========================================" << endl;
 #endif
+
+			bool castedFireball = false;
+			for (int i = 0; i < ListOfParticles.size(); ++i)
+			{
+				if (!ListOfParticles[i]->m_Active)
+				{
+					CParticle* temp = ListOfParticles[i];
+					temp->m_Active = true;
+					temp->position = Position;
+					temp->speed = 200.f;
+					temp->targetPosition = boss->GetPosition();
+					castedFireball = true;
+					break;
+				}
+			}
+			if (!castedFireball)
+			{
+				CParticle* temp = new CParticle(Position, boss->GetPosition(), true, 200.f);
+				temp->mesh = manager.retrieveMesh("FIREBALL");
+				ListOfParticles.push_back(temp);
+				cout <<"LIST OF PARTICLE SIZE IS: " << ListOfParticles.size() << endl;
+			}
 		}
 	}
+
+	if (m_Cooldown <= 0.f)
+	{
+		m_IsCastingSkill = true;	// Set the boolean for casting to true
+		state = CAST_SKILL;	// Change it's state to casting of skill
+	}
+	
 }
 
 float CMage::GetChildRotation(int ChildID)
@@ -198,6 +267,13 @@ void CMage::TickTimer(double dt)
 {
 	m_LastAttackTimer += m_AttackSpeed * dt;
 	m_StateChangeTimer += dt;
+
+	if (m_IsCastingSkill)
+		m_CastingTimer += (float)dt;
+
+	if (m_Cooldown > 0)
+		m_Cooldown -= (float)dt;
+	
 }
 
 void CMage::CustomStates(double dt)
@@ -238,9 +314,17 @@ string CMage::PrintState(void)
 		DummyText = ClassName + "RETREAT";
 		return DummyText;
 		break;
+	case CMage::CAST_SKILL:
+		DummyText = ClassName + "CASTING SKILL";
+		return DummyText;
+		break;
 	default:
 		DummyText = ClassName + "NULL";
 		return DummyText;
 		break;
 	}
+}
+bool CMage::GetCastingSkillBool(void)
+{
+	return m_IsCastingSkill;
 }

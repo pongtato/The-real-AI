@@ -47,6 +47,15 @@ CTank::~CTank()
 
 void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	CBoss* Boss = NULL;
+	for (unsigned int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "BOSS")
+		{
+			Boss = (CBoss*)ListOfCharacters[i];
+			break;
+		}
+	}
 	TargetPosition = newTargetPosition;
 	DangerPosition = newDangerPosition;
 	//Face the targets position
@@ -57,7 +66,16 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 	{
 		state = RETREAT;
 	}
-
+	if (Boss->GetCastingSkillBool()) // If Boss is casting AoE skill, overwrite any existing state into RETREAT
+	{
+		//test
+		state = RETREAT;
+		m_DangerZone = Boss->GetSkillRadius();
+	}
+	else
+	{
+		m_DangerZone = Boss->GetAttackRange() * 1.5f;
+	}
 	switch (state)
 	{
 	case MOVE:
@@ -91,13 +109,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do attack 
-				for (int i = 0; i < ListOfCharacters.size(); ++i)
-				{
-					if (ListOfCharacters[i]->GetTYPE() == "BOSS")
-					{
-						UpdateAttacking(ListOfCharacters[i],dt);
-					}
-				}
+				UpdateAttacking(Boss, dt);
 				m_StateChangeTimer = 0.0f;
 			}
 			else if (AttackCheck(ListOfCharacters))

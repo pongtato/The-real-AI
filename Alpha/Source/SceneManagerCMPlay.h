@@ -8,6 +8,7 @@
 #include "AI Folder\Healer.h"
 #include "AI Folder\Mage.h"
 #include "AI Folder\Boss.h"
+#include "AI Folder\Particle.h"
 
 #define WARRIOR "WARRIOR"
 #define SWORD	"_SWORD_"
@@ -32,6 +33,7 @@ private:
 	vector<GameObject3D*> objectList;
 	SceneNode* sceneGraph;
 	vector<CEntity*> ListOfCharacters;
+	vector<CParticle*> ListOfParticles;
 
 	int TANK_COUNT;
 	int MAGE_COUNT;

@@ -99,6 +99,11 @@ void SceneManagerCMPlay::Init(const int width, const int height, ResourcePool *R
 	ListOfCharacters.push_back(Healer);
 	ListOfCharacters.push_back(Boss);
 
+	
+	CParticle* Fireball = new CParticle(Vector3(0,0,0), Vector3(0, 0, 0), false, 10.f);
+	Fireball->mesh = resourceManager.retrieveMesh("FIREBALL");
+	ListOfParticles.push_back(Fireball);
+
 	//Scene graph init
 	this->sceneGraph = new SceneNode();
 	lightEnabled = false;
@@ -200,7 +205,8 @@ void SceneManagerCMPlay::Update(double dt)
 		}
 		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
 		{
-			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
+			CMage* temp = (CMage*)ListOfCharacters[i];
+			temp->RunFSM(dt, ListOfCharacters,ListOfParticles,resourceManager, Boss->GetPosition(), Boss->GetPosition());
 		}
 		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
 		{
@@ -210,6 +216,11 @@ void SceneManagerCMPlay::Update(double dt)
 		{
 			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
 		}
+	}
+
+	for (int i = 0; i < ListOfParticles.size(); ++i)
+	{
+		ListOfParticles[i]->Update(dt);
 	}
 
 	UpdateSceneGraph();
@@ -467,7 +478,17 @@ void SceneManagerCMPlay::RenderMobileObject()
 			}
 		}
 	}
-
+	for (int i = 0; i < ListOfParticles.size(); ++i)
+	{
+		if (ListOfParticles[i]->m_Active)
+		{
+			CParticle* Particle = ListOfParticles[i];
+			modelStack.PushMatrix();
+			modelStack.Translate(Particle->position.x, Particle->position.y, Particle->position.z);
+			Render3DMesh(Particle->mesh, false);
+			modelStack.PopMatrix();
+		}
+	}
 	/*modelStack.PushMatrix();
 	modelStack.Translate(40, 1, 0);
 	modelStack.Scale(10, 10, 10);
@@ -692,6 +713,8 @@ void SceneManagerCMPlay::AddTANK(string ID)
 	drawMesh->textureID = resourceManager.retrieveTexture("WEAPONS");
 	newModel = new GameObject3D;
 	newNode = new SceneNode;
+
+	
 
 	string IDPlus = ID;
 	IDPlus += SWORD;
