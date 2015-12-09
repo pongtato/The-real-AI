@@ -13,7 +13,7 @@ CTank::CTank()
 
 	m_HP = 100;
 	//Testing
-	m_Curent_HP = 50;
+	m_Curent_HP = 0;
 
 	Position.Set(
 		Probability(0, 100),
@@ -47,6 +47,8 @@ CTank::~CTank()
 
 void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	
+
 	CBoss* Boss = NULL;
 	for (unsigned int i = 0; i < ListOfCharacters.size(); ++i)
 	{
@@ -63,10 +65,28 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 	FaceTarget();
 	TickTimer(dt);
 
-	if (IsTarget && GetHpPercent() <= 25)
+	if (m_Curent_HP <= 0)
+	{
+		state = DEAD;
+		m_Active = false;
+		return;
+	}
+	else if (state == DEAD)
+	{
+		state = SEEK_HEAL;
+	}
+
+	//Look for heal range
+	if (GetHpPercent() < 25 && SeekHealer(ListOfCharacters) && (HealPosition - Position).Length() >= 35.f && IsTarget)
+	{
+		state = SEEK_HEAL;
+	}
+	//Not in heal range run, no heal available
+	else if (IsTarget && GetHpPercent() < 25 && (HealPosition - Position).Length() >= 35.f)
 	{
 		state = RETREAT;
 	}
+
 	if (Boss->GetCastingSkillBool()) // If Boss is casting AoE skill, overwrite any existing state into RETREAT
 	{
 		//test
@@ -86,16 +106,19 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		}
 		else if (m_Cooldown >= m_SkillDelay && TauntCheck(ListOfCharacters))
 		{
+			prevstate = state;
 			state = TAUNT;
 		}
 		else if (AttackCheck(ListOfCharacters))
 		{
 			m_isBlock = true;
+			prevstate = state;
 			state = BLOCK;
 		}
 		//Taunt uanvailable
 		else if (m_LastAttackTimer >= m_AttackDelay)
 		{
+			prevstate = state;
 			state = ATTACK;
 		}
 		break;
@@ -116,7 +139,9 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			else if (AttackCheck(ListOfCharacters))
 			{
 				m_isBlock = true;
+				prevstate = state;
 				state = BLOCK;
+				
 			}
 			else
 			{
@@ -127,6 +152,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 		{
 			if (m_StateChangeTimer >= StateChangeDelay)
 			{
+				prevstate = state;
 				state = MOVE;
 			}
 		}
@@ -147,7 +173,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			else
 			{
 				TakingAction = false;
-				state = ATTACK;
+				state = prevstate;
 			}
 		}
 		break;
@@ -164,7 +190,7 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			else
 			{
 				TakingAction = false;
-				state = ATTACK;
+				state = prevstate;
 			}
 		}
 		break;
@@ -183,7 +209,17 @@ void CTank::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTarg
 			state = MOVE;
 		}
 
-		if (GetHpPercent() > 50)
+		if (GetHpPercent() > 40)
+		{
+			state = MOVE;
+		}
+		break;
+	case SEEK_HEAL:
+		if ((HealPosition - Position).Length() >= 35.f)
+		{
+			Move(ListOfCharacters, HealPosition, dt);
+		}
+		else
 		{
 			state = MOVE;
 		}
@@ -357,8 +393,11 @@ bool CTank::TauntCheck(vector<CEntity*> ListOfCharacters)
 		{
 			if (ListOfCharacters[i]->GetTargetID() != CEntity::TANK)
 			{
-				//Boss is meant to be taunted
-				return true;
+				if (TargetPosition == ListOfCharacters[i]->GetPosition())
+				{
+					//Boss is meant to be taunted
+					return true;
+				}
 			}
 		}
 	}
@@ -377,12 +416,12 @@ bool CTank::AttackCheck(vector<CEntity*> ListOfCharacters)
 				//Currently the target to be attacked, try to block
 				int RNG = Probability(0, 100);
 #if _DEBUG
-				cout << " Trying to block, ROLLED: " << RNG << endl;
+				//cout << " Trying to block, ROLLED: " << RNG << endl;
 #endif
 				if (RNG <= BLOCK_CHANCE)
 				{
 #if _DEBUG
-					cout << " BLOCKING! " << endl;
+					//cout << " BLOCKING! " << endl;
 #endif
 					return true;
 				}
@@ -432,6 +471,14 @@ string CTank::PrintState(void)
 		break;
 	case CTank::RETREAT:
 		DummyText = ClassName + "RETREAT";
+		return DummyText;
+		break;
+	case CTank::SEEK_HEAL:
+		DummyText = ClassName + "SEEK HEAL";
+		return DummyText;
+		break;
+	case CTank::DEAD:
+		DummyText = ClassName + "DEAD";
 		return DummyText;
 		break;
 	default:

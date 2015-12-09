@@ -10,7 +10,9 @@ class CMage : public CEntity
 		MOVE,
 		ATTACK,
 		RETREAT,
-		CAST_SKILL
+		CAST_SKILL,
+		SEEK_HEAL,
+		DEAD
 	};
 
 private:

@@ -10,7 +10,9 @@ class CHealer : public CEntity
 		MOVE,
 		HEAL,
 		HEAL_SELF,
-		RETREAT
+		REVIVE,
+		RETREAT,
+		DEAD,
 	};
 private:
 	const static int HEALER_LOOK_OFFSET = 90;

@@ -40,7 +40,9 @@ public:
 		ATTACK,
 		TAUNT,
 		BLOCK,
-		RETREAT
+		RETREAT,
+		SEEK_HEAL,
+		DEAD
 	};
 
 	void RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);

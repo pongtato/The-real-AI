@@ -74,6 +74,8 @@ public:
 	virtual Vector3 ComputeCohesion(vector<CEntity*> ListOfCharacters);
 	virtual Vector3 ComputeSeperation(vector<CEntity*> ListOfCharacters);
 	virtual void ComputeDangerPosition(vector<CEntity*> ListOfCharacters);
+	virtual bool SeekHealer(vector<CEntity*> ListOfCharacters);
+	virtual bool SeekDead(vector<CEntity*> ListOfCharacters);
 
 	virtual int Probability(int lowerLimit, int upperLimit);
 
@@ -90,10 +92,13 @@ public:
 	virtual string PrintState(void) = 0;
 	virtual int GetState(void) = 0;
 
+	virtual bool GetActive(void);
+	virtual void SetActive(bool TF);
 	Vector2 seek(Vector2 target);
 
 protected:
 	int state;
+	int prevstate;
 	int m_HP;					// Max HP of this AI
 	int m_Curent_HP;			// Current HP of this AI
 	int m_Priority;				// Boss attack priority level
@@ -110,6 +115,7 @@ protected:
 	float m_AttackRangeOffset;	// Offset to move closer before commencing attack
 	float m_DangerZone;			// Caution zone of this AI
 	float m_InitialRotation;	// Where to reset the child node to etc Sword starting point
+	bool m_Active;				// Is unit alive
 
 	const float m_alignmentWeight = 0.1f;
 	const float m_cohesionWeight = 0.1f;
@@ -122,6 +128,7 @@ protected:
 
 	Vector3 Position;
 	Vector3 TargetPosition;
+	Vector3 HealPosition;
 	Vector3 DangerPosition;
 	Vector3 Direction;
 

@@ -39,7 +39,7 @@ public:
 	};
 
 	string PrintState(void);
-	void UpdateAttacking(CEntity*, double dt);
+	void UpdateAttacking(CEntity*, double dt, vector<CEntity*> ListOfEnemies);
 	void TickTimer(double dt);
 	void RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetPosition = 0, Vector3 newDangerPosition = 0);
 	void CustomStates(double dt);

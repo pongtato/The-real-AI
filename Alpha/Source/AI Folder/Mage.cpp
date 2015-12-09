@@ -46,6 +46,17 @@ CMage::~CMage()
 
 void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, vector<CParticle*>&ListOfParticles, ResourceManager &manager, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	if (m_Curent_HP <= 0)
+	{
+		state = DEAD;
+		m_Active = false;
+		return;
+	}
+	else if (state == DEAD)
+	{
+		state = SEEK_HEAL;
+	}
+
 	CBoss* Boss = NULL;
 	for (unsigned int i = 0; i < ListOfEnemies.size(); ++i)
 	{
@@ -65,7 +76,11 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, vector<CParticle*>
 	FaceTarget();
 	TickTimer(dt);
 
-	if (m_DangerZone > (Position - DangerPosition).Length())
+	if (GetHpPercent() < 40 && SeekHealer(ListOfEnemies) && (TargetPosition - Position).Length() >= 35.f)
+	{
+		state = SEEK_HEAL;
+	}
+	else if (m_DangerZone > (Position - DangerPosition).Length())
 	{
 		m_StaffRotation = STAFF_SWING_INIT_AMOUNT;
 		state = RETREAT;
@@ -136,6 +151,16 @@ void CMage::RunFSM(double dt, vector<CEntity*> ListOfEnemies, vector<CParticle*>
 			Retreat(ListOfEnemies,DangerPosition, dt);
 		}
 		else 
+		{
+			state = ATTACK;
+		}
+		break;
+	case CMage::SEEK_HEAL:
+		if ((TargetPosition - Position).Length() >= 35.f)
+		{
+			Move(ListOfEnemies, TargetPosition, dt);
+		}
+		else
 		{
 			state = ATTACK;
 		}
@@ -317,6 +342,14 @@ string CMage::PrintState(void)
 		break;
 	case CMage::CAST_SKILL:
 		DummyText = ClassName + "CASTING SKILL";
+		return DummyText;
+		break;
+	case CMage::SEEK_HEAL:
+		DummyText = ClassName + "SEEK HEAL";
+		return DummyText;
+		break;
+	case CMage::DEAD:
+		DummyText = ClassName + "DEAD";
 		return DummyText;
 		break;
 	default:

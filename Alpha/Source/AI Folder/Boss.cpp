@@ -116,7 +116,7 @@ void CBoss::ChooseTarget(vector<CEntity*> ListOfEnemies)
 		TargetChangeTimer = 0.0f;
 	}
 
-	if (ListOfEnemies[CurrentTarget]->GetTYPE() == BOSS)
+	if (ListOfEnemies[CurrentTarget]->GetTYPE() == BOSS || !ListOfEnemies[CurrentTarget]->GetActive())
 	{
 		CurrentTarget = Probability(0, ListOfEnemies.size() - 1);
 	}
@@ -184,7 +184,7 @@ void CBoss::RunFSM(double dt, vector<CEntity*> ListOfEnemies, Vector3 newTargetP
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do attack 
-				UpdateAttacking(ListOfEnemies[CurrentTarget], dt);
+				UpdateAttacking(ListOfEnemies[CurrentTarget], dt,ListOfEnemies);
 				m_StateChangeTimer = 0.0f;
 			}
 			else
@@ -297,7 +297,7 @@ float CBoss::GetDamageTaken(void)
 	return m_TotalDamageTaken;
 }
 
-void CBoss::UpdateAttacking(CEntity* target, double dt)
+void CBoss::UpdateAttacking(CEntity* target, double dt, vector<CEntity*> ListOfEnemies)
 {
 //	// Damage the target when boss is able to attack
 //	if (m_LastAttackTimer >= m_AttackSpeed)
@@ -349,7 +349,14 @@ void CBoss::UpdateAttacking(CEntity* target, double dt)
 		}
 		else
 		{
-			target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+			if (target->GetCurrentHealthPoint() > 0)
+			{
+				target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() - m_Damage);
+			}
+			else
+			{
+				ChooseTarget(ListOfEnemies);
+			}
 			cout << target->GetCurrentHealthPoint() << endl;
 
 #if _DEBUG

@@ -199,16 +199,16 @@ void SceneManagerCMPlay::Update(double dt)
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i]->GetTYPE() == WARRIOR)
+		if (ListOfCharacters[i]->GetTYPE() == WARRIOR && ListOfCharacters[i]->GetActive())
 		{
 			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
 		}
-		else if (ListOfCharacters[i]->GetTYPE() == MAGE)
+		else if (ListOfCharacters[i]->GetTYPE() == MAGE && ListOfCharacters[i]->GetActive())
 		{
 			CMage* temp = (CMage*)ListOfCharacters[i];
 			temp->RunFSM(dt, ListOfCharacters,ListOfParticles,resourceManager, Boss->GetPosition(), Boss->GetPosition());
 		}
-		else if (ListOfCharacters[i]->GetTYPE() == HEALER)
+		else if (ListOfCharacters[i]->GetTYPE() == HEALER && ListOfCharacters[i]->GetActive())
 		{
 			ListOfCharacters[i]->RunFSM(dt, ListOfCharacters, Boss->GetPosition(), Boss->GetPosition());
 		}
@@ -584,6 +584,27 @@ void SceneManagerCMPlay::TANK_NODE(CEntity* theTank)
 	//**********//
 	//Warrior	//
 	//**********//
+
+	if (theTank->GetActive())
+	{
+
+		Mesh* drawMesh = resourceManager.retrieveMesh("WARRIOR_OBJ");
+		drawMesh->textureID = resourceManager.retrieveTexture("WARRIOR");
+		if (sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->getMesh() != drawMesh)
+		{
+			sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setMesh(drawMesh);
+		}
+	}
+	else
+	{
+		Mesh* drawMesh = resourceManager.retrieveMesh("WARRIOR_OBJ");
+		drawMesh->textureID = resourceManager.retrieveTexture("D_WARRIOR");
+		if (sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->getMesh() != drawMesh)
+		{
+			sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setMesh(drawMesh);
+		}
+	}
+
 	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setPosition(theTank->GetPosition());
 	sceneGraph->GetChildNode(theTank->GetID())->GetGameObject()->setRotation(theTank->GetRotation(), 0, 1, 0);
 
@@ -623,6 +644,27 @@ void SceneManagerCMPlay::MAGE_NODE(CEntity* theMage)
 	//**********//
 	//Mage	//
 	//**********//	
+	
+	if (theMage->GetActive())
+	{
+		
+		Mesh* drawMesh = resourceManager.retrieveMesh("MAGE_OBJ");
+		drawMesh->textureID = resourceManager.retrieveTexture("MAGE");
+		if (sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->getMesh() != drawMesh)
+		{
+			sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->setMesh(drawMesh);
+		}
+	}
+	else
+	{
+		Mesh* drawMesh = resourceManager.retrieveMesh("MAGE_OBJ");
+		drawMesh->textureID = resourceManager.retrieveTexture("D_MAGE");
+		if (sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->getMesh() != drawMesh)
+		{
+			sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->setMesh(drawMesh);
+		}
+	}
+
 	sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->setPosition(theMage->GetPosition());
 	sceneGraph->GetChildNode(theMage->GetID())->GetGameObject()->setRotation(theMage->GetRotation(), 0, 1, 0);
 
@@ -638,6 +680,27 @@ void SceneManagerCMPlay::HEALER_NODE(CEntity* theHealer)
 	//**********//
 	//Healer	//
 	//**********//
+
+	if (theHealer->GetActive())
+	{
+
+		Mesh* drawMesh = resourceManager.retrieveMesh("HEALER_OBJ");
+		drawMesh->textureID = resourceManager.retrieveTexture("HEALER");
+		if (sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->getMesh() != drawMesh)
+		{
+			sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->setMesh(drawMesh);
+		}
+	}
+	else
+	{
+		Mesh* drawMesh = resourceManager.retrieveMesh("HEALER_OBJ");
+		drawMesh->textureID = resourceManager.retrieveTexture("D_HEALER");
+		if (sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->getMesh() != drawMesh)
+		{
+			sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->setMesh(drawMesh);
+		}
+	}
+
 	sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->setPosition(theHealer->GetPosition());
 	sceneGraph->GetChildNode(theHealer->GetID())->GetGameObject()->setRotation(theHealer->GetRotation(), 0, 1, 0);
 

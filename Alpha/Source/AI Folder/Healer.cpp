@@ -9,7 +9,7 @@ CHealer::CHealer()
 	m_RunSpeed = m_MoveSpeed * 0.5f;
 	ID = HEALER;
 	targetID = HEALER;
-	m_Damage = 10.f;
+	m_Damage = 15.f;
 	m_HP = 100;
 	m_Curent_HP = 20;
 
@@ -59,6 +59,14 @@ string CHealer::PrintState(void)
 		DummyText = ClassName + "RETREAT";
 		return DummyText;
 		break;
+	case CHealer::REVIVE:
+		DummyText = ClassName + "REVIVE";
+		return DummyText;
+		break;
+	case CHealer::DEAD:
+		DummyText = ClassName + "DEAD";
+		return DummyText;
+		break;
 	default:
 		DummyText = ClassName + "NULL";
 		return DummyText;
@@ -68,6 +76,13 @@ string CHealer::PrintState(void)
 
 void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTargetPosition, Vector3 newDangerPosition)
 {
+	if (m_Curent_HP <= 0)
+	{
+		m_Active = false;
+		state = DEAD;
+		return;
+	}
+
 	CEntity* target = NULL;
 	CBoss* Boss = NULL;
 	for (unsigned int i = 0; i < ListOfCharacters.size(); ++i)
@@ -122,7 +137,11 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		{
 			Move(ListOfCharacters,TargetPosition, dt);
 		}
-		else if ( this->GetHpPercent() > 25)
+		else if (SeekDead(ListOfCharacters))
+		{
+			state = REVIVE;
+		}
+		else if ( this->GetHpPercent() > 40)
 		{
 			state = HEAL;
 		}
@@ -142,7 +161,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 			if (m_LastAttackTimer >= m_AttackDelay)
 			{
 				//Do Healing
-				if (target)
+				if (target && target->GetActive())
 				{
 					UpdateAttacking(target, dt);
 				}
@@ -163,9 +182,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		break;
 	case HEAL_SELF:
 
-		cout << GetHpPercent() << endl;
-
-		if (GetHpPercent() <= 25)
+		if (GetHpPercent() <= 40)
 		{
 			TakingAction = true;
 			if (m_LastAttackTimer >= m_AttackDelay)
@@ -188,7 +205,7 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		}
 		break;
 	case RETREAT:
-		if (m_DangerZone > (Position - DangerPosition).Length() && m_LastAttackTimer < m_AttackDelay)
+		if (m_DangerZone > (Position - DangerPosition).Length())
 		{
 			m_StateChangeTimer = 0.0f;
 			Retreat(ListOfCharacters,DangerPosition, dt);
@@ -200,6 +217,33 @@ void CHealer::RunFSM(double dt, vector<CEntity*> ListOfCharacters, Vector3 newTa
 		else
 		{
 			state = ATTACK;
+		}
+		break;
+	case REVIVE:
+		if (m_AttackRange >= (TargetPosition - Position).Length())
+		{
+			TakingAction = true;
+		}
+		else
+		{
+			Move(ListOfCharacters, TargetPosition, dt);
+		}
+
+		if (TakingAction)
+		{
+			if (m_LastAttackTimer >= m_AttackDelay)
+			{
+				//Do Healing
+				if (target)
+				{
+					UpdateAttacking(target, dt);
+				}
+			}
+			else
+			{
+				state = MOVE;
+				TakingAction = false;
+			}
 		}
 		break;
 	default:
@@ -234,7 +278,16 @@ void CHealer::UpdateAttacking(CEntity* target ,double dt)
 	{
 		if (target->GetHpPercent() < 100)
 		{
-			target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() + m_Damage); // Heal the target
+			if (!target->GetActive())
+			{
+				target->SetActive(true);
+				target->SetCurrentHealthPoint(m_Damage * 3); // Heal the target
+			}
+			else
+			{
+				target->SetCurrentHealthPoint(target->GetCurrentHealthPoint() + m_Damage); // Heal the target
+			}
+			
 		}
 		m_LastAttackTimer = 0.0f;
 		TakingAction = false;

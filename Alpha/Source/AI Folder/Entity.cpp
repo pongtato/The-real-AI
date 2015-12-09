@@ -10,6 +10,7 @@ CEntity::CEntity()
 	m_LastAttackTimer = 0.f;
 	m_StateChangeTimer = 0.f;
 	Direction.SetZero();
+	m_Active = true;
 }
 
 
@@ -135,8 +136,29 @@ void CEntity::Move(vector<CEntity*> ListOfCharacters,Vector3 TargetDestination, 
 	Position += Direction * m_MoveSpeed * dt;
 
 
-	Position.x = Math::Wrap(Position.x, -200.f, 200.f);
-	Position.z = Math::Wrap(Position.z, -200.f, 200.f);
+	if (Position.x <= -150.f)
+	{
+		Position.x = 0.0f;
+	}
+
+	if (Position.z <= -150.f)
+	{
+		Position.z = 0.0f;
+	}
+
+	if (Position.x >= 150.f)
+	{
+		Position.x = 0.0f;
+	}
+
+	if (Position.z >= 150.f)
+	{
+		Position.z = 0.0f;
+	}
+
+	//Position.x = Math::Wrap(Position.x, -150.f, 150.f);
+	//Position.z = Math::Wrap(Position.z, -150.f, 150.f);
+
 
 	Direction.SetZero();
 }
@@ -156,6 +178,36 @@ void CEntity::Retreat(vector<CEntity*> ListOfCharacters,Vector3 TargetDestinatio
 	Direction += (Alignment  * m_alignmentWeight) + (Cohesion  * m_cohesionWeight) + (Seperation  * m_separationWeight);
 	
 	Position += Direction * m_RunSpeed * dt;
+
+	//Position.x = Math::Wrap(Position.x, -150.f, 150.f);
+	//Position.z = Math::Wrap(Position.z, -150.f, 150.f);
+}
+
+bool CEntity::SeekHealer(vector<CEntity*> ListOfCharacters)
+{
+	float theLength = 0.f;
+	bool healerExists = false;
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() == "HEALER")
+		{
+			float theCompare = (ListOfCharacters[i]->GetPosition() - Position).Length();
+			if (theLength == 0.f)
+			{
+				this->HealPosition = ListOfCharacters[i]->GetPosition();
+				theLength = theCompare;
+				healerExists = true;
+			}
+			else if (theCompare < theLength)
+			{
+				this->HealPosition = ListOfCharacters[i]->GetPosition();
+				theLength = theCompare;
+				healerExists = true;
+			}
+		}
+	}
+
+	return healerExists;
 }
 
 void CEntity::Attack(void)
@@ -264,7 +316,7 @@ Vector3 CEntity::ComputeAlignment(vector<CEntity*> ListOfCharacters)
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i] != this)
+		if (ListOfCharacters[i] != this && ListOfCharacters[i]->GetActive())
 		//if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
 			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
@@ -314,7 +366,7 @@ Vector3 CEntity::ComputeCohesion(vector<CEntity*> ListOfCharacters)
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i] != this)
+		if (ListOfCharacters[i] != this && ListOfCharacters[i]->GetActive())
 		//if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
 			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
@@ -355,7 +407,7 @@ Vector3 CEntity::ComputeSeperation(vector<CEntity*> ListOfCharacters)
 
 	for (int i = 0; i < ListOfCharacters.size(); ++i)
 	{
-		if (ListOfCharacters[i] != this)
+		if (ListOfCharacters[i] != this && ListOfCharacters[i]->GetActive())
 		//if (ListOfCharacters[i] != this && ListOfCharacters[i]->TYPE != "BOSS")
 		{
 			float distance = (Position - ListOfCharacters[i]->GetPosition()).Length();
@@ -412,4 +464,32 @@ void CEntity::ComputeDangerPosition(vector<CEntity*> ListOfCharacters)
 			}	
 		}
 	}
+}
+
+bool CEntity::GetActive(void)
+{
+	return this->m_Active;
+}
+
+void CEntity::SetActive(bool TF)
+{
+	this->m_Active = TF;
+}
+
+bool CEntity::SeekDead(vector<CEntity*> ListOfCharacters)
+{
+	bool isDead = false;
+	for (int i = 0; i < ListOfCharacters.size(); ++i)
+	{
+		if (ListOfCharacters[i]->GetTYPE() != "BOSS")
+		{
+			if (!ListOfCharacters[i]->GetActive())
+			{
+				this->TargetPosition = ListOfCharacters[i]->GetPosition();
+				isDead = true;
+			}
+		}
+	}
+
+	return isDead;
 }

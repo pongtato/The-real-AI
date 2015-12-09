@@ -35,6 +35,18 @@
 		[Directory] Config\\Resources\\Texture\\AI\\Healer.tga
 	}
 	{
+		[NAME] D_WARRIOR
+		[Directory] Config\\Resources\\Texture\\AI\\D_Warrior.tga
+	}
+	{
+		[NAME] D_MAGE
+		[Directory] Config\\Resources\\Texture\\AI\\D_Mage.tga
+	}
+	{
+		[NAME] D_HEALER
+		[Directory] Config\\Resources\\Texture\\AI\\D_Healer.tga
+	}
+	{
 		[NAME] BOSS
 		[Directory] Config\\Resources\\Texture\\AI\\Boss.tga
 	}
